@@ -12,30 +12,30 @@ A scalable inventory and order management platform built using Flask and MySQL w
 ---
 #### Features
 
-##### *Authentication & Authorization
+##### Authentication & Authorization
 - Secure user login and logout
 - Session-based authentication
 - Role-based access control
-###### *Product Management
+###### Product Management
 - Add new products
 - Update product details
 - Delete products
 - View product inventory
-###### *Stock Management
+###### Stock Management
 - Real-time stock tracking
 - Automatic stock updates after order processing
 - Low-stock monitoring
 - Inventory history tracking
-###### *Order Management
+###### Order Management
 - Create customer orders
 - Update order status
 - Cancel orders
 - Order history management
-###### *Customer Management
+###### Customer Management
 - Add customer details
 - View customer order history
 - Manage customer information
-###### *Dashboard
+###### Dashboard
 - Total products overview
 - Total orders overview
 - Stock availability summary
@@ -77,11 +77,11 @@ python -m venv venv
 ```
 
 ###### Activate Virtual Environment
-*Linux/Mac:*
+Linux/Mac:
 ```bash
 source venv/bin/activate
 ```
-*Windows:
+Windows:
 ```bash
 venv\Scripts\activate
 ```
