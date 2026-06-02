@@ -12,7 +12,7 @@ A scalable inventory and order management platform built using Flask and MySQL w
 ---
 #### Features
 
-##### Authentication & Authorization
+###### Authentication & Authorization
 - Secure user login and logout
 - Session-based authentication
 - Role-based access control
