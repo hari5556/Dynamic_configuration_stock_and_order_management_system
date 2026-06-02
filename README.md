@@ -63,12 +63,12 @@ A scalable inventory and order management platform built using Flask and MySQL w
 
 ###### Clone the Repository
 ```bash
-git clone https://github.com/hari5556/Dynamic_Configuration_Stock_and_Order_Management_System.git
+git clone https://github.com/hari5556/Dynamic_configuration_stock_and_order_management_system.git
 ```
 
 ###### Navigate to Project Directory
 ```bash
-cd Dynamic_Configuration_Stock_and_Order_Management_System
+cd Dynamic_configuration_stock_and_order_management_system
 ```
 
 ###### Create Virtual Environment
