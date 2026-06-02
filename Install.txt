@@ -1,0 +1,9 @@
+Python download = "https://www.python.org/downloads/"
+
+MySQL Download = "https://dev.mysql.com/downloads/installer/"
+
+C/C++ dependencies = "https://aka.ms/vs/17/release/vc_redist.x64.exe"
+
+Visual Studio Code = "https://code.visualstudio.com/download"
+
+Install Python Microsoft dependencies

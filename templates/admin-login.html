@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login - Order Management System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3a56d4;
+            --danger: #dc3545;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: "Poppins", sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .login-container {
+            background: white;
+            padding: 30px 25px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 380px;
+        }
+        
+        .login-header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        
+        .login-header h1 {
+            color: var(--primary);
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+        
+        .login-header p {
+            color: var(--gray);
+            font-size: 14px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+            color: var(--dark);
+            font-size: 14px;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #e9ecef;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+            font-family: "Poppins", sans-serif;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        
+        .login-btn {
+            width: 100%;
+            background: var(--danger);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            font-family: "Poppins", sans-serif;
+            margin-top: 5px;
+        }
+        
+        .login-btn:hover {
+            background: #c82333;
+        }
+        
+        .login-btn:disabled {
+            background: var(--gray);
+            cursor: not-allowed;
+        }
+        
+        .back-link {
+            text-align: center;
+            margin-top: 15px;
+        }
+        
+        .back-link a {
+            color: var(--primary);
+            text-decoration: none;
+            font-size: 14px;
+        }
+        
+        .back-link a:hover {
+            text-decoration: underline;
+        }
+
+        .message {
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            text-align: center;
+            display: none;
+            font-size: 14px;
+        }
+        
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-header">
+            <h1><i class="fas fa-lock"></i> Admin Login</h1>
+            <p>Access the order management dashboard</p>
+        </div>
+        
+        <div id="messageContainer"></div>
+        
+        <form id="loginForm">
+            <div class="form-group">
+                <label class="form-label" for="loginEmail">
+                    <i class="fas fa-envelope"></i> Email Address
+                </label>
+                <input type="email" id="loginEmail" class="form-input" placeholder="Enter admin email" required>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label" for="loginPassword">
+                    <i class="fas fa-key"></i> Password
+                </label>
+                <input type="password" id="loginPassword" class="form-input" placeholder="Enter password" required>
+            </div>
+            
+            <button type="submit" class="login-btn" id="loginBtn">
+                <i class="fas fa-sign-in-alt"></i> Login
+            </button>
+        </form>
+        
+        <div class="back-link">
+            <a href="/gateway"><i class="fas fa-arrow-left"></i> Back to Gateway</a>
+        </div>
+    </div>
+
+    <script>
+    let currentMFASessionToken = '';
+
+    document.getElementById('loginForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const email = document.getElementById('loginEmail').value.trim();
+        const password = document.getElementById('loginPassword').value.trim();
+        const loginBtn = document.getElementById('loginBtn');
+        const messageContainer = document.getElementById('messageContainer');
+        
+        // Clear previous messages
+        messageContainer.innerHTML = '';
+        messageContainer.style.display = 'none';
+        
+        if (!email || !password) {
+            showMessage('Please enter both email and password', 'error');
+            return;
+        }
+        
+        // Show loading state
+        loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Logging in...';
+        loginBtn.disabled = true;
+        
+        try {
+            const response = await fetch('/admin/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ 
+                    email: email, 
+                    password: password 
+                })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                if (data.mfa_required) {
+                    // Show MFA modal
+                    currentMFASessionToken = data.session_token;
+                    showMFAModal(data.user_email);
+                } else {
+                    showMessage('Login successful! Redirecting...', 'success');
+                    
+                    // Store admin data
+                    sessionStorage.setItem('admin_logged_in', 'true');
+                    sessionStorage.setItem('admin_email', email);
+                    sessionStorage.setItem('admin_id', data.admin_id);
+                    sessionStorage.setItem('user_type', 'admin');
+                    sessionStorage.setItem('user_name', data.user || 'Admin');
+                    
+                    setTimeout(() => {
+                        window.location.href = '/';
+                    }, 1000);
+                }
+            } else {
+                showMessage(data.message || 'Login failed', 'error');
+            }
+            
+        } catch (error) {
+            showMessage('Network error: ' + error.message, 'error');
+        } finally {
+            // Reset button
+            loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Login';
+            loginBtn.disabled = false;
+        }
+    });
+    
+    function showMFAModal(userEmail) {
+        // Create MFA modal
+        const modalHTML = `
+            <div id="mfaModal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); display:flex; align-items:center; justify-content:center; z-index:1000;">
+                <div style="background:white; padding:30px; border-radius:12px; width:90%; max-width:400px; box-shadow:0 10px 25px rgba(0,0,0,0.2);">
+                    <h3 style="color:#4361ee; margin-bottom:15px; text-align:center;">
+                        <i class="fas fa-shield-alt"></i> Verification Required
+                    </h3>
+                    <p style="margin-bottom:20px; text-align:center; color:#666;">
+                        We sent a verification code to:<br>
+                        <strong>${userEmail}</strong>
+                    </p>
+                    
+                    <input type="text" id="mfaCode" placeholder="Enter 6-digit code" 
+                           maxlength="6" style="width:100%; padding:12px; border:2px solid #e9ecef; border-radius:6px; font-size:18px; text-align:center; letter-spacing:8px; margin-bottom:15px;"
+                           oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                    
+                    <button onclick="verifyMFA()" style="width:100%; padding:12px; background:#4361ee; color:white; border:none; border-radius:6px; font-size:14px; font-weight:600; cursor:pointer;">
+                        <i class="fas fa-check"></i> Verify & Login
+                    </button>
+                    
+                    <button onclick="closeMFAModal()" style="width:100%; padding:10px; background:#6c757d; color:white; border:none; border-radius:6px; font-size:13px; margin-top:10px; cursor:pointer;">
+                        <i class="fas fa-times"></i> Cancel
+                    </button>
+                    
+                    <p style="color:#888; font-size:12px; text-align:center; margin-top:15px;">
+                        <i class="fas fa-info-circle"></i> Check your email for the verification code
+                    </p>
+                </div>
+            </div>
+        `;
+        
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
+        document.getElementById('mfaCode').focus();
+    }
+    
+    function verifyMFA() {
+        const mfaCode = document.getElementById('mfaCode').value;
+        
+        if (mfaCode.length !== 6) {
+            alert('Please enter a 6-digit code');
+            return;
+        }
+        
+        fetch('/admin/verify-mfa', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                session_token: currentMFASessionToken,
+                verification_code: mfaCode
+            })
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                showMessage('Login successful! Redirecting...', 'success');
+                
+                // Store admin data
+                sessionStorage.setItem('admin_logged_in', 'true');
+                sessionStorage.setItem('admin_id', data.admin_id);
+                sessionStorage.setItem('user_type', 'admin');
+                sessionStorage.setItem('user_name', data.user || 'Admin');
+                
+                closeMFAModal();
+                
+                setTimeout(() => {
+                    window.location.href = '/';
+                }, 1000);
+            } else {
+                alert('Verification failed: ' + data.message);
+            }
+        })
+        .catch(error => {
+            alert('Network error: ' + error.message);
+        });
+    }
+    
+    function closeMFAModal() {
+        const modal = document.getElementById('mfaModal');
+        if (modal) {
+            modal.remove();
+        }
+        currentMFASessionToken = '';
+    }
+    
+    function showMessage(message, type) {
+        const messageContainer = document.getElementById('messageContainer');
+        
+        const messageDiv = document.createElement('div');
+        messageDiv.className = 'message';
+        messageDiv.classList.add(type);
+        messageDiv.textContent = message;
+        messageDiv.style.display = 'block';
+        
+        messageContainer.appendChild(messageDiv);
+        messageContainer.style.display = 'block';
+        
+        setTimeout(() => {
+            if (messageDiv.parentNode) {
+                messageDiv.remove();
+            }
+            if (messageContainer.children.length === 0) {
+                messageContainer.style.display = 'none';
+            }
+        }, 5000);
+    }
+    
+    // Check if already logged in
+    async function checkAuthStatus() {
+        try {
+            const response = await fetch('/admin/check-auth');
+            const data = await response.json();
+            
+            if (data.authenticated) {
+                window.location.href = '/admin-dashboard';
+            }
+        } catch (error) {
+            console.log('Not authenticated');
+        }
+    }
+    
+    // Check auth status on page load
+    checkAuthStatus();
+</script>
+    <!-- Add this line to EVERY HTML page -->
+<script src="{{ url_for('static', filename='js/navigation.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Management System PCS</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3a56d4;
+            --secondary: #7209b7;
+            --success: #06d6a0;
+            --danger: #ef476f;
+            --warning: #ffd166;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --light-gray: #e9ecef;
+            --card-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Poppins", "Inter", "SF Pro Display", "Segoe UI", "Manrope", sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e7ec 100%);
+            color: var(--dark);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        ul {
+            list-style: none;
+            background: var(--primary);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            padding: 2px 10px;
+            min-height: 30px; 
+            height: auto;
+            line-height: 1;
+        }
+
+        li {
+            display: inline-flex;
+            flex-shrink: 0;
+        }
+
+        li a, .dropbtn {
+            display: flex;
+            align-items: center;
+            color: white;
+            text-decoration: none;
+            padding: 6px 10px;
+            font-size: 13px;
+            font-weight: 500;
+            white-space: nowrap;
+            transition: all 0.3s ease;
+            border-radius: 6px;
+            height: auto;
+            line-height: 1.2;
+        }
+
+        li a:hover, .dropdown:hover .dropbtn {
+            background: var(--dark);
+        }
+
+        li.dropdown {
+            position: relative;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: white;
+            min-width: 180px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+            z-index: 1;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .dropdown-content a {
+            color: var(--dark);
+            padding: 10px 14px;
+            text-decoration: none;
+            display: block;
+            font-size: 13px;
+            transition: all 0.3s ease;
+        }
+
+        .dropdown-content a:hover {
+            background: var(--light-gray);
+            color: var(--primary);
+        }
+
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
+        /* ========= MAIN CONTENT ========= */
+        .main-content {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .hero-section {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            text-align: center;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 30px;
+        }
+
+        .hero-section h1 {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: inline-block;
+        }
+
+        .hero-section p {
+            font-size: 16px;
+            color: var(--gray);
+            max-width: 700px;
+            margin: 0 auto 20px;
+        }
+
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 25px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: var(--card-shadow);
+            text-align: center;
+            transition: var(--transition);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px -10px rgba(0, 0, 0, 0.15);
+        }
+
+        .stat-card i {
+            font-size: 30px;
+            color: var(--primary);
+            margin-bottom: 12px;
+        }
+
+        .stat-card h3 {
+            font-size: 20px;
+            margin-bottom: 8px;
+        }
+
+        .stat-card p {
+            color: var(--gray);
+            font-size: 13px;
+        }
+
+        .stat-number {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--primary);
+            margin: 8px 0;
+        }
+
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-top: 30px;
+            justify-items: center;
+            align-items: start;
+        }
+
+        .action-btn {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            box-shadow: var(--card-shadow);
+            transition: var(--transition);
+            cursor: pointer;
+            text-decoration: none;
+            color: var(--dark);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100px;
+            width: 100%;
+            max-width: 250px;
+        }
+
+        .action-btn:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-5px);
+        }
+
+        .action-btn:hover i {
+            color: white;
+        }
+
+        .action-btn i {
+            font-size: 24px;
+            color: var(--primary);
+            margin-bottom: 8px;
+        }
+
+        .action-btn h3 {
+            font-size: 16px;
+            margin-bottom: 4px;
+        }
+
+        .action-btn p {
+            font-size: 12px;
+            color: var(--gray);
+        }
+
+        .action-btn:hover p {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .quick-actions-heading {
+            text-align: center;
+            margin-bottom: 15px;
+            font-size: 24px;
+            color: var(--dark);
+        }
+
+        footer {
+            background: var(--dark);
+            color: white;
+            text-align: center;
+            padding: 15px;
+            margin-top: 40px;
+        }
+
+        /* ========= MOBILE ========= */
+        @media (max-width: 768px) {
+            ul {
+                flex-direction: row;
+                overflow-x: auto;
+                white-space: nowrap;
+                -webkit-overflow-scrolling: touch;
+                padding: 5px 10px;
+            }
+
+            li {
+                display: inline-flex;
+                flex-shrink: 0;
+            }
+
+            li a, .dropbtn {
+                padding: 8px 12px;
+                font-size: 12px;
+                border-radius: 6px;
+            }
+
+            .dropdown-content {
+                position: fixed;
+                top: 50px;
+                left: 0;
+                width: 100%;
+                background: white;
+                z-index: 1000;
+                display: none;
+            }
+
+            .dropdown:hover .dropdown-content {
+                display: block;
+            }
+
+            .hero-section h1 {
+                font-size: 24px;
+            }
+
+            .stats-container,
+            .quick-actions {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ========= NAVBAR ========= -->
+<ul>
+    <li><a href="/"><i class="fas fa-home"></i> Home</a></li>
+
+    <li class="dropdown">
+        <a href="/dashboard" class="dropbtn"><i class="fas fa-chart-line"></i> Dashboard</a>
+        <div class="dropdown-content">
+            <a href="/dashboard"><i class="fas fa-chart-bar"></i> Dashboard Results</a>
+            <a href="/Top-Moving-Products"><i class="fas fa-arrow-up"></i> Top Moving Products</a>
+            <a href="/Slow-Moving-Products"><i class="fas fa-arrow-down"></i> Slow Moving Products</a>
+            <a href="/Non-Moving-Products"><i class="fas fa-ban"></i> Non Moving Products</a>
+        </div>
+    </li>
+
+    <li><a href="/configurations"><i class="fas fa-cogs"></i> Configurations</a></li>
+    <li><a href="/dataimport"><i class="fas fa-file-import"></i>Data-import</a></li>
+    <li><a href="/inventory"><i class="fas fa-warehouse"></i> Inventory</a></li>
+    <li><a href="/customers"><i class="fas fa-users"></i> Customers</a></li>
+    <li><a href="/orders"><i class="fas fa-shopping-cart"></i> Orders</a></li>
+    <li><a href="/admin-dashboard"><i class="fas fa-chart-line"></i> Admin-Dashboard</a></li>
+    <li><a href="/user-registration"><i class="fas fa-users"></i> User</a></li>
+    <li><a href="/admin-registration"><i class="fas fa-users"></i> Admin</a></li>
+    
+
+    <li style="margin-left: auto;">
+        <a href="#" id="securitySettingsBtn" style="display: none;">
+            <i class="fas fa-shield-alt"></i> Security
+        </a>
+    </li>
+
+    <!-- KEEP LOGOUT BUTTON -->
+    <li><a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+</ul>
+
+<!-- ========= MAIN CONTENT ========= -->
+<div class="main-content">
+    <div class="hero-section">
+        <h1><i class="fas fa-shopping-cart"></i> Order Management System PCS</h1>
+        <p>Streamline your order processing, inventory management, and customer relationships with our comprehensive order management solution.</p>
+
+        <div class="stats-container">
+            <div class="stat-card">
+                <i class="fas fa-shopping-bag"></i>
+                <h3>Total Orders</h3>
+                <div class="stat-number">?</div>
+                <p>This month</p>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-boxes"></i>
+                <h3>Inventory Items</h3>
+                <div class="stat-number">?</div>
+                <p>Active products</p>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-users"></i>
+                <h3>Customers</h3>
+                <div class="stat-number">?</div>
+                <p>Registered users</p>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-chart-line"></i>
+                <h3>Revenue</h3>
+                <div class="stat-number">?</div>
+                <p>This quarter</p>
+            </div>
+        </div>
+    </div>
+
+    <h2 class="quick-actions-heading">Quick Actions</h2>
+    <div class="quick-actions">
+        <a href="/orders" class="action-btn" data-permission="create_order">
+            <i class="fas fa-plus-circle"></i>
+            <h3>Create Order</h3>
+            <p>Add a new customer order</p>
+        </a>
+        <a href="/inventory" class="action-btn" data-permission="manage_inventory">
+            <i class="fas fa-box-open"></i>
+            <h3>Manage Inventory</h3>
+            <p>Update stock levels</p>
+        </a>
+        <a href="/users" class="action-btn" data-permission="add_user">
+            <i class="fas fa-user-plus"></i>
+            <h3>Add User</h3>
+            <p>Create new user account</p>
+        </a>
+        <a href="/dashboard" class="action-btn" data-permission="view_reports">
+            <i class="fas fa-chart-pie"></i>
+            <h3>View Reports</h3>
+            <p>Analytics and insights</p>
+        </a>
+    </div>
+</div>
+
+<footer>
+    <p>&copy; 2025 Order Management System PCS. All rights reserved.</p>
+</footer>
+
+<!-- ========= UPDATED JS ========= -->
+<script>
+    /* ===== EXISTING JS FUNCTIONS ===== */
+    let userPermissions = {};
+
+    function formatCurrency(amount) {
+        return '₹' + Number(amount).toLocaleString('en-IN', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+    }
+
+    function formatNumber(num) {
+        return Number(num).toLocaleString('en-IN');
+    }
+
+    async function loadDashboardStats() {
+        try {
+            const response = await fetch(`/api/dashboard/summary?period=month`);
+            const data = await response.json();
+            if (data.success) {
+                const summary = data.summary;
+                document.querySelector('.stat-card:nth-child(1) .stat-number').textContent = formatNumber(summary.orders_count);
+                await loadInventoryCount();
+                document.querySelector('.stat-card:nth-child(3) .stat-number').textContent = formatNumber(summary.total_customers);
+                document.querySelector('.stat-card:nth-child(4) .stat-number').textContent = formatCurrency(summary.revenue);
+            }
+        } catch (error) {
+            console.error('Error loading dashboard stats:', error);
+        }
+    }
+
+    async function loadInventoryCount() {
+        try {
+            const response = await fetch(`/api/inventory-count`);
+            const data = await response.json();
+            if (data.success) {
+                document.querySelector('.stat-card:nth-child(2) .stat-number').textContent = formatNumber(data.total_count);
+            }
+        } catch (error) {
+            document.querySelector('.stat-card:nth-child(2) .stat-number').textContent = '0';
+        }
+    }
+
+    async function checkAuthenticationAndSetupNavigation() {
+        try {
+            const [adminResponse, userResponse] = await Promise.all([
+                fetch('/admin/check-auth'),
+                fetch('/user/check-auth')
+            ]);
+            const adminAuth = await adminResponse.json();
+            const userAuth = await userResponse.json();
+            if (!adminAuth.authenticated && !userAuth.authenticated) {
+                window.location.href = '/gateway?message=Please login to access the system&type=error';
+                return false;
+            }
+            if (adminAuth.authenticated) {
+                await setupDynamicNavigation(adminAuth);
+            } else if (userAuth.authenticated) {
+                await setupDynamicNavigation(userAuth);
+            }
+            return true;
+        } catch (error) {
+            console.error('Auth check error:', error);
+            window.location.href = '/gateway?message=Authentication error&type=error';
+            return false;
+        }
+    }
+
+    async function setupDynamicNavigation(authData) {
+        const userType = authData.user_type || (authData.user ? 'admin' : 'user');
+        const userName = authData.user_name || authData.user || authData.customer_name || authData.username || 'User';
+        window.userAuthData = authData;
+        userPermissions = authData.permissions || await getUserPermissions(userType);
+        updateNavigationBasedOnPermissions(userPermissions);
+        updateQuickActionsBasedOnPermissions(userPermissions);
+        updateUserDisplay(userName, userType);
+    }
+
+    async function getUserPermissions(userType) {
+        try {
+            const response = await fetch(`/api/user/permissions?user_type=${userType}`);
+            const data = await response.json();
+            if (data.success && data.permissions) return data.permissions;
+        } catch (error) {
+            console.log('Using basic permissions as fallback');
+        }
+        return userType === 'admin'
+            ? {
+                can_view_quick_actions: true,
+                allowed_pages: ['/', '/dashboard', '/configurations', '/inventory', '/users', '/orders', '/admin-dashboard', '/admin-registration', '/user-registration', '/security-settings'],
+                allowed_quick_actions: ['create_order', 'manage_inventory', 'add_user', 'view_reports']
+            }
+            : {
+                can_view_quick_actions: true,
+                allowed_pages: ['/', '/dashboard', '/inventory', '/orders', '/user-security-settings'],
+                allowed_quick_actions: ['create_order', 'manage_inventory', 'view_reports']
+            };
+    }
+
+    function updateNavigationBasedOnPermissions(permissions) {
+        const regularNavLinks = document.querySelectorAll('ul li:not(.dropdown) a');
+        regularNavLinks.forEach(link => {
+            const href = link.getAttribute('href');
+            if (href && href !== '#' && !href.includes('logout')) {
+                link.parentElement.style.display = permissions.allowed_pages.includes(href) ? 'block' : 'none';
+            }
+        });
+        const dropdowns = document.querySelectorAll('li.dropdown');
+        dropdowns.forEach(dropdown => {
+            dropdown.style.display = 'block';
+            dropdown.style.visibility = 'visible';
+            dropdown.style.position = 'relative';
+        });
+    }
+
+    function updateQuickActionsBasedOnPermissions(permissions) {
+        const quickActionsSection = document.querySelector('.quick-actions');
+        const quickActionsHeading = document.querySelector('.quick-actions-heading');
+        if (!permissions.can_view_quick_actions) {
+            if (quickActionsSection) quickActionsSection.style.display = 'none';
+            if (quickActionsHeading) quickActionsHeading.style.display = 'none';
+            return;
+        }
+        if (quickActionsSection) quickActionsSection.style.display = 'grid';
+        if (quickActionsHeading) quickActionsHeading.style.display = 'block';
+        const quickActionLinks = quickActionsSection.querySelectorAll('.action-btn');
+        let visibleActions = 0;
+        quickActionLinks.forEach(action => {
+            const permissionKey = action.getAttribute('data-permission');
+            const isAllowed = permissions.allowed_quick_actions.includes(permissionKey);
+            action.style.display = isAllowed ? 'flex' : 'none';
+            if (isAllowed) visibleActions++;
+        });
+        if (visibleActions === 0) {
+            if (quickActionsSection) quickActionsSection.style.display = 'none';
+            if (quickActionsHeading) quickActionsHeading.style.display = 'none';
+        }
+    }
+
+    // ✅ NEW FUNCTION: Setup Security Button
+    function setupSecurityButton(userType) {
+        const securityBtn = document.getElementById('securitySettingsBtn');
+        
+        if (securityBtn) {
+            // Show the button
+            securityBtn.style.display = 'flex';
+            
+            // Set the correct href based on user type
+            if (userType === 'admin') {
+                securityBtn.href = '/security-settings';
+            } else {
+                securityBtn.href = '/user-security-settings';
+            }
+            
+            // Update tooltip based on user type
+            securityBtn.title = userType === 'admin' 
+                ? 'Admin Security Settings' 
+                : 'User Security Settings';
+        }
+    }
+
+    // ✅ UPDATED FUNCTION: Update User Display
+    function updateUserDisplay(userName, userType) {
+        const logoutBtn = document.querySelector('a[onclick="logout()"]');
+        
+        // Setup security button
+        setupSecurityButton(userType);
+        
+        if (logoutBtn) {
+            const actualUserName = window.userAuthData?.user_name || window.userAuthData?.user || window.userAuthData?.customer_name || window.userAuthData?.username || userName || 'User';
+            logoutBtn.innerHTML = userType === 'admin'
+                ? `<i class="fas fa-crown"></i> ${actualUserName} | Logout`
+                : `<i class="fas fa-user"></i> ${actualUserName} | Logout`;
+        }
+    }
+
+    async function logout() {
+        try {
+            const adminResponse = await fetch('/admin/check-auth');
+            const adminAuth = await adminResponse.json();
+            const userResponse = await fetch('/user/check-auth');
+            const userAuth = await userResponse.json();
+            if (adminAuth.authenticated) await fetch('/admin/logout', { method: 'POST' });
+            else if (userAuth.authenticated) await fetch('/user/logout', { method: 'POST' });
+            sessionStorage.clear();
+            window.location.href = '/gateway?message=Logout successful&type=success';
+        } catch (error) {
+            console.error('Logout error:', error);
+            sessionStorage.clear();
+            window.location.href = '/gateway';
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', async function () {
+        const isAuthenticated = await checkAuthenticationAndSetupNavigation();
+        if (isAuthenticated) {
+            loadDashboardStats();
+            setInterval(loadDashboardStats, 30000);
+        }
+    });
+</script>
+</body>
+</html>

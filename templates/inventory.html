@@ -1,0 +1,2365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventory Management</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3a56d4;
+            --secondary: #7209b7;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --light-gray: #e9ecef;
+            --border: #dee2e6;
+            --hover: #f8f9fa;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: "Poppins", "Inter", "SF Pro Display", "Segoe UI", "Manrope", sans-serif;
+            background-color: #f5f7fa;
+            color: var(--dark);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        /* Navigation Styles */
+        ul {
+            list-style: none;
+            background: var(--primary);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            padding: 2px 10px;
+            min-height: 30px;
+            height: auto;
+            line-height: 1;
+        }
+        li {
+            display: inline-flex;
+            flex-shrink: 0;
+        }
+        li a, .dropbtn {
+            display: flex;
+            align-items: center;
+            color: white;
+            text-decoration: none;
+            padding: 6px 10px;
+            font-size: 13px;
+            font-weight: 500;
+            white-space: nowrap;
+            transition: all 0.3s ease;
+            border-radius: 6px;
+            height: auto;
+            line-height: 1.2;
+        }
+        li a:hover, .dropdown:hover .dropbtn {
+            background-color: var(--dark);
+        }
+        li.dropdown {
+            position: relative;
+        }
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: white;
+            min-width: 180px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+            z-index: 1;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .dropdown-content a {
+            color: var(--dark);
+            padding: 10px 14px;
+            text-decoration: none;
+            display: block;
+            font-size: 13px;
+            transition: all 0.3s ease;
+        }
+        .dropdown-content a:hover {
+            background-color: var(--light-gray);
+            color: var(--primary);
+        }
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+        /* Inventory Container */
+        .inventory-container {
+            display: flex;
+            min-height: calc(100vh - 50px);
+            padding: 15px;
+        }
+        /* Sidebar */
+        .sidebar {
+            width: 320px;
+            flex-shrink: 0;
+            background: white;
+            padding: 25px;
+            box-shadow: 2px 0 15px rgba(0,0,0,0.08);
+            overflow-y: auto;
+            border-radius: 10px;
+        }
+        .sidebar-header {
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border);
+        }
+        .sidebar-header h2 {
+            color: var(--primary);
+            font-weight: 600;
+        }
+        .filter-section {
+            margin-bottom: 15px;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+        }
+        
+        /* Accordion Header */
+        .accordion-header {
+            background: linear-gradient(135deg, #4361ee 0%, #7209b7 100%);
+            color: white;
+            padding: 12px 15px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+        .accordion-header:hover {
+            background: linear-gradient(135deg, #3a56d4 0%, #6308a5 100%);
+        }
+        .accordion-header .accordion-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 500;
+            font-size: 14px;
+        }
+        .accordion-header .accordion-icon {
+            transition: transform 0.3s ease;
+            font-size: 12px;
+        }
+        .accordion-header.collapsed .accordion-icon {
+            transform: rotate(-90deg);
+        }
+        
+        /* Accordion Content */
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            background: white;
+        }
+        .accordion-content.expanded {
+            max-height: 2000px;
+        }
+        .accordion-content-inner {
+            padding: 12px;
+        }
+        
+        .value-list {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            margin-bottom: 15px;
+            transition: max-height 0.3s ease;
+        }
+        .field-filter-item {
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: background-color 0.2s;
+        }
+        .field-filter-item:hover {
+            background-color: var(--hover);
+        }
+        .field-filter-item.active {
+            background-color: #e8f5e9;
+            font-weight: 500;
+        }
+        .field-subheader {
+            margin-top: 10px;
+            padding-bottom: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .field-subheader .field-filter-title {
+            font-size: 14px;
+            color: #495057;
+            font-weight: 500;
+        }
+        .filter-count {
+            background: var(--primary);
+            color: white;
+            font-size: 12px;
+            padding: 2px 6px;
+            border-radius: 12px;
+        }
+        .show-more {
+            padding: 10px;
+            text-align: center;
+            color: var(--primary);
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .show-more:hover {
+            text-decoration: underline;
+        }
+        .filter-search {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 8px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .highlight {
+            background: yellow;
+        }
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            min-width: 0;
+            padding: 25px;
+            background-color: white;
+            border-radius: 10px;
+            margin-left: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .content-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border);
+        }
+        .content-header h1 {
+            font-weight: 600;
+            color: var(--primary);
+        }
+        .results-count {
+            color: var(--gray);
+            font-size: 14px;
+        }
+        /* Table Container - UPDATED FOR AUTO COLUMN WIDTH */
+        .table-container-wrapper {
+            position: relative;
+            width: 100%;
+            margin-top: 20px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        /* Top Scrollbar Container */
+        .table-scroll-top {
+            width: 100%;
+            overflow-x: auto;
+            overflow-y: hidden;
+            border-bottom: 1px solid var(--border);
+            height: 12px;
+            background: var(--light-gray);
+        }
+        
+        /* Main Table Container */
+        .table-container {
+            width: 100%;
+            overflow-x: auto;
+            overflow-y: auto;
+            max-height: 70vh;
+            min-height: 500px;
+        }
+        
+        /* Table Styles with Auto Column Width */
+        .results-table {
+            width: 100%;
+            min-width: 600px;
+            border-collapse: separate;
+            border-spacing: 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            table-layout: auto;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .results-table th {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 15px;
+            text-align: right;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            white-space: nowrap;
+            min-width: 100px;
+            font-weight: 600;
+            border-right: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .results-table th:last-child {
+            border-right: none;
+        }
+
+        .results-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--border);
+            font-size: 14px;
+            white-space: nowrap;
+            min-width: 100px;
+            border-right: 1px solid #f0f0f0;
+            transition: all 0.2s ease;
+            text-align: right;
+        }
+
+        .results-table td:last-child {
+            border-right: none;
+        }
+        
+        .results-table tr {
+            height: 40px;
+        }
+        
+        .results-table tr:hover {
+            background-color: var(--hover);
+        }
+        
+        .results-table tr:hover td {
+            background-color: var(--hover);
+        }
+
+        .results-table th:first-child,
+        .results-table td:first-child {
+            border-left: 3px solid var(--primary);
+            font-weight: 500;
+            text-align: left !important;
+        }
+
+        /* Make last column stand out */
+        .results-table th:last-child,
+        .results-table td:last-child {
+            border-right: 3px solid var(--primary);
+        }
+
+        /* Alternate row coloring for better readability */
+        .results-table tbody tr:nth-child(even) {
+            background-color: #fafafa;
+        }
+
+        .results-table tbody tr:nth-child(even):hover {
+            background-color: #f0f8ff;
+        }
+
+        /* Total Row Styles */
+        .results-table tfoot tr {
+            background: #e8f5e9 !important;
+            font-weight: 600;
+            border-top: 2px solid #28a745;
+        }
+        
+        .results-table tfoot td {
+            padding: 12px 15px;
+            font-weight: 600;
+            color: #155724;
+            background: #e8f5e9;
+            border-bottom: none;
+        }
+        
+        .results-table tfoot td:first-child {
+            border-left: 3px solid #28a745;
+        }
+
+        .results-table tfoot td:last-child {
+            border-right: 3px solid #28a745;
+        }
+
+        .total-cell {
+            background: #e8f5e9 !important;
+            color: #155724;
+            font-weight: 600;
+            text-align: right;
+            padding-right: 20px !important;
+        }
+        
+        .calc-total {
+            text-align: right;
+            font-weight: 600;
+            color: #155724;
+            padding-right: 20px !important;
+        }
+        
+        .scrollbar-dummy {
+            height: 1px;
+            width: 1px;
+        }
+        
+        /* Scrollbar Styling */
+        .table-scroll-top::-webkit-scrollbar {
+            height: 8px;
+        }
+        
+        .table-scroll-top::-webkit-scrollbar-track {
+            background: var(--light-gray);
+            border-radius: 4px;
+        }
+        
+        .table-scroll-top::-webkit-scrollbar-thumb {
+            background: var(--gray);
+            border-radius: 4px;
+        }
+        
+        .table-scroll-top::-webkit-scrollbar-thumb:hover {
+            background: var(--dark);
+        }
+        
+        .no-data {
+            padding: 40px;
+            text-align: center;
+            color: var(--gray);
+            font-style: italic;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        /* Column Selector */
+        .column-selector {
+            position: relative;
+            display: inline-block;
+            margin-left: 15px;
+        }
+        .column-selector-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        .column-selector-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .column-selector-content {
+            display: none;
+            position: fixed;
+            background-color: white;
+            width: 500px;
+            max-width: 80vw;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            z-index: 1000;
+            border-radius: 8px;
+            padding: 20px;
+            border: 1px solid var(--border);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            max-height: 80vh;
+        }
+        .column-selector-content.show {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translate(-50%, -48%); }
+            to { opacity: 1; transform: translate(-50%, -50%); }
+        }
+        .column-options-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            padding: 10px 5px;
+            max-height: 50vh;
+            overflow-y: auto;
+        }
+        .column-options-grid::-webkit-scrollbar {
+            width: 6px;
+        }
+        .column-options-grid::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        .column-options-grid::-webkit-scrollbar-thumb {
+            background: #c5c5c5;
+            border-radius: 10px;
+        }
+        .column-option {
+            padding: 12px 15px;
+            display: flex;
+            align-items: center;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: white;
+            transition: all 0.2s ease;
+        }
+        .column-option:hover {
+            background-color: var(--light);
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .column-option input {
+            margin-right: 10px;
+            cursor: pointer;
+        }
+        .column-option label {
+            cursor: pointer;
+            font-size: 14px;
+            flex-grow: 1;
+        }
+        #saveColumnsBtn {
+            margin-top: 20px;
+            width: 100%;
+            padding: 12px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        #saveColumnsBtn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        /* Overlay */
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+        }
+        .overlay.show {
+            display: block;
+        }
+        /* Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+        .action-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 50%;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+        }
+        .select-all-btn:hover {
+            background-color: rgba(40, 167, 69, 0.1);
+        }
+        .clear-all-btn:hover {
+            background-color: rgba(220, 53, 69, 0.1);
+        }
+        .action-btn i {
+            font-size: 16px;
+        }
+        .select-all-btn i {
+            color: #28a745;
+        }
+        .clear-all-btn i {
+            color: #dc3545;
+        }
+
+        .download-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .download-btn:hover {
+            background: #218838;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .download-btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .download-btn:disabled:hover {
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* Mobile Styles */
+        @media (max-width: 768px) {
+            ul {
+                height: 50px;
+                display: flex;
+                flex-wrap: nowrap;
+                overflow-x: auto;
+                overflow-y: hidden;
+                white-space: nowrap;
+                -webkit-overflow-scrolling: touch;
+                padding: 5px 10px;
+                justify-content: flex-start;
+            }
+            li {
+                float: none;
+                display: inline-flex;
+                flex-shrink: 0;
+                margin: 0 2px;
+            }
+            li a, .dropbtn {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 8px 12px;
+                height: 40px;
+                line-height: 1.2;
+                font-size: 12px;
+                white-space: nowrap;
+                border-radius: 6px;
+                margin: 0;
+            }
+            .dropdown-content {
+                position: absolute;
+                top: 100%;
+                left: 0;
+                width: 100%;
+                background: white;
+                box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+                border-radius: 0 0 8px 8px;
+                display: none;
+            }
+            .dropdown:hover .dropdown-content {
+                display: block;
+            }
+            .dropdown-content a {
+                padding: 10px 15px;
+                text-align: center;
+                background: white;
+                color: var(--dark);
+            }
+            .inventory-container {
+                flex-direction: column;
+                padding: 10px;
+                gap: 15px;
+            }
+            .sidebar {
+                width: 100%;
+                height: auto;
+                margin-bottom: 0;
+                padding: 20px;
+                flex-shrink: 0;
+            }
+            .main-content {
+                padding: 20px;
+                margin-left: 0;
+                min-width: 0;
+            }
+            .content-header {
+                flex-direction: column;
+                gap: 15px;
+                align-items: flex-start;
+                text-align: center;
+            }
+            .results-table td, .results-table th {
+                font-size: 13px;
+                padding: 8px;
+            }
+            .results-table tr {
+                height: 35px;
+            }
+            .column-selector-content {
+                right: auto;
+                left: 0;
+                width: 90vw;
+                max-width: 300px;
+            }
+            .column-options-grid {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+            .field-subheader {
+                margin-top: 15px;
+                padding-bottom: 5px;
+                border-bottom: 2px solid #e9ecef;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+            .field-subheader .field-filter-title {
+                font-size: 14px;
+                color: #495057;
+                font-weight: 500;
+            }
+            .filter-section {
+                margin-bottom: 15px;
+                padding: 0;
+                background: white;
+                border-radius: 10px;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            }
+            .table-container-wrapper {
+                border: none;
+                box-shadow: none;
+                margin-top: 15px;
+            }
+            .results-table {
+                min-width: 600px;
+            }
+            .table-scroll-top {
+                display: block;
+                height: 10px;
+            }
+            .table-container {
+                max-height: 60vh;
+                min-height: 400px;
+            }
+            .action-buttons {
+                gap: 5px;
+            }
+            .action-btn {
+                width: 24px;
+                height: 24px;
+            }
+            .action-btn i {
+                font-size: 14px;
+            }
+            .content-header > div {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 10px;
+            }
+            
+            .download-btn {
+                width: 100%;
+                justify-content: center;
+            }
+            .content-header > div {
+                display: flex;
+                flex-direction: row !important;
+                align-items: center !important;
+                gap: 10px;
+                width: 100%;
+                justify-content: space-between;
+                margin-top: 10px;
+                flex-wrap: wrap;
+            }
+            
+            .column-selector {
+                margin-left: 0 !important;
+                width: 100%;
+            }
+            .column-selector-btn {
+                width: 100%;
+                text-align: center;
+                padding: 12px 0;
+                margin-top: 5px;
+                font-size: 14px;
+                background: var(--primary);
+                color: white;
+                border: none;
+                border-radius: 6px;
+                cursor: pointer;
+                font-weight: 500;
+                transition: all 0.3s ease;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 8px;
+            }
+            
+            .column-selector-btn:hover {
+                background: var(--primary-dark);
+            }
+            
+            .column-selector-btn i {
+                font-size: 14px;
+            }
+            /* Align all buttons in a row */
+            .content-header {
+                flex-direction: column;
+                gap: 10px;
+                align-items: stretch !important;
+                text-align: left !important;
+            }
+            .content-header h1 {
+                width: 100%;
+                margin-bottom: 5px;
+            }
+            /* Button container for Apply, Clear, Download */
+            .content-header > .button-group {
+                display: flex;
+                flex-direction: row !important;
+                gap: 8px;
+                width: 100%;
+                margin-bottom: 10px;
+            }
+            .download-btn {
+                flex: 1;
+                min-width: 0;
+                padding: 10px 15px;
+                font-size: 13px;
+                justify-content: center;
+            }
+            /* Fix for table scroll sync on mobile */
+            .table-container-wrapper {
+                -webkit-overflow-scrolling: touch;
+                touch-action: pan-x pan-y;
+            }
+            .table-scroll-top {
+                display: block !important;
+                height: 15px !important;
+                -webkit-overflow-scrolling: touch;
+                overflow-x: auto;
+                overflow-y: hidden;
+                touch-action: pan-x;
+            }
+            .table-container {
+                -webkit-overflow-scrolling: touch;
+                overflow-x: auto;
+                overflow-y: auto;
+                touch-action: pan-x pan-y;
+                max-height: 60vh;
+                min-height: 400px;
+            }
+            .results-table {
+                min-width: 600px;
+            }
+            /* Improve scrollbar visibility on mobile */
+            .table-scroll-top::-webkit-scrollbar {
+                height: 6px !important;
+            }
+            .table-scroll-top::-webkit-scrollbar-thumb {
+                background: var(--primary) !important;
+                border-radius: 3px !important;
+            }
+            /* Make table scroll more responsive */
+            .table-container::-webkit-scrollbar {
+                width: 6px;
+                height: 6px;
+            }
+            .table-container::-webkit-scrollbar-thumb {
+                background: var(--gray);
+                border-radius: 3px;
+            }
+            /* Ensure scroll sync works */
+            .table-scroll-top, .table-container {
+                scrollbar-width: thin;
+                scrollbar-color: var(--primary) var(--light-gray);
+            }
+            /* Fix column selector positioning */
+            .column-selector-content {
+                position: fixed !important;
+                top: 50% !important;
+                left: 50% !important;
+                transform: translate(-50%, -50%) !important;
+                width: 90vw !important;
+                max-width: 400px !important;
+                max-height: 70vh !important;
+                margin: 0 !important;
+            }
+            /* Action buttons sizing */
+            .action-buttons {
+                gap: 6px;
+            }
+            .action-btn {
+                width: 30px;
+                height: 30px;
+            }
+            .action-btn i {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <ul>
+        <li><a href="/"><i class="fas fa-home"></i> Home</a></li>
+        <li class="dropdown">
+            <a href="/dashboard" class="dropbtn"><i class="fas fa-chart-line"></i> Dashboard</a>
+            <div class="dropdown-content">
+                <a href="/dashboard"><i class="fas fa-chart-bar"></i> Dashboard Results</a>
+                <a href="/Top-Moving-Products"><i class="fas fa-arrow-up"></i> Top Moving Products</a>
+                <a href="/Slow-Moving-Products"><i class="fas fa-arrow-down"></i> Slow Moving Products</a>
+                <a href="/Non-Moving-Products"><i class="fas fa-ban"></i> Non Moving Products</a>
+            </div>
+        </li>
+        <li><a href="/configurations"><i class="fas fa-cogs"></i> Configurations</a></li>
+        <li><a href="/dataimport"><i class="fas fa-file-import"></i> Data-import</a></li>
+        <li><a href="/inventory"><i class="fas fa-warehouse"></i> Inventory</a></li>
+        <li><a href="/customers"><i class="fas fa-users"></i> Customers</a></li>
+        <li><a href="/orders"><i class="fas fa-shopping-cart"></i> Orders</a></li>
+        <li><a href="/admin-dashboard"><i class="fas fa-chart-line"></i> Admin-Dashboard</a></li>
+        <li><a href="/user-registration"><i class="fas fa-users"></i> User</a></li>
+        <li><a href="/admin-registration"><i class="fas fa-users"></i> Admin</a></li>
+    </ul>
+
+    <!-- Main Content -->
+    <div class="inventory-container">
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h2>Inventory Filters</h2>
+            </div>
+            <div id="fieldFiltersContainer"></div>
+        </div>
+        <div class="main-content">
+            <div class="content-header">
+                <h1>Inventory Results</h1>
+                <button class="download-btn" id="clearAllFiltersBtn" title="Clear All Filters" style="background: #dc3545; margin-right: 10px;">
+                    <i class="fas fa-times"></i> Clear
+                </button>
+                <button class="download-btn" id="applyFilterBtn" title="Apply Selected Filters" style="background: #7209b7; margin-right: 10px;">
+                    <i class="fas fa-filter"></i> Apply 
+                </button>
+                <button class="download-btn" id="downloadBtn" title="Download Report">
+                        <i class="fas fa-download"></i> Download
+                </button>
+                <div>
+                    <div class="column-selector">
+                        <button class="column-selector-btn" id="columnSelectorBtn">Select Columns</button>
+                        <div class="column-selector-content" id="columnSelectorContent">
+                            <div id="columnOptionsContainer"></div>
+                            <button id="saveColumnsBtn">Save Selection</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="summaryTable">
+                <div class="no-data">Loading inventory data...</div>
+            </div>
+        </div>
+    </div>
+    <div class="overlay" id="overlay"></div>
+
+<script>
+    // API Endpoints
+    const API_URL = '/api/inventories'; // For sidebar data (ALL data)
+    const GROUPED_API_URL = '/api/inventories/grouped'; // For grouped table data
+    const SAVE_COLUMNS_URL = '/api/save-columns';
+    const COLUMN_MAPPING_URL = '/api/column-mapping';
+    const CATEGORIES_URL = '/api/configuration-categories';
+    
+    // Global variables
+    let inventoryData = []; // For table display (grouped)
+    let allOriginalData = []; // For sidebar filtering (ALL original data)
+    let columnMappings = [];
+    let fieldFilters = {};
+    let selectedFilters = {};  
+    let activeFilters = {};    
+    let selectedColumns = [];
+    let areFiltersSetup = false;
+    
+    let valueListsCache = {};
+    let isProcessingBulk = false;
+    
+    // Store ALL unique values for each field (for complete sidebar)
+    let allFieldValues = {};
+    
+    const isFirstLoad = !sessionStorage.getItem('inventoryInitialized');
+    if (isFirstLoad) {
+        localStorage.removeItem('inventoryState');
+        sessionStorage.setItem('inventoryInitialized', 'true');
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+        // Load saved state
+        const savedState = localStorage.getItem('inventoryState');
+        if (savedState) {
+            try {
+                const state = JSON.parse(savedState);
+                Object.entries(state.activeFilters || {}).forEach(([field, values]) => {
+                    activeFilters[field] = new Set(values);
+                });
+                selectedColumns = state.selectedColumns || [];
+            } catch (e) {
+                console.error('Error loading saved state:', e);
+            }
+        }
+        
+        // Fetch column mappings
+        await fetchColumnMappings();
+        
+        // Set default columns if none selected
+        if (selectedColumns.length === 0) {
+            selectedColumns = getDefaultColumnsFromMappings();
+            console.log('Default columns:', selectedColumns);
+        }
+        
+        // Load ALL data for sidebar (first load)
+        await loadAllDataForSidebar();
+        
+        // Setup field filters with ALL data
+        await setupFieldFilters();
+        
+        // Setup event listeners
+        setupEventListeners();
+        
+        // Setup column selector
+        setupColumnSelector();
+        
+        // Initialize buttons
+        initializeButtons();
+        
+        // Load initial grouped data for table
+        await loadGroupedData();
+    });
+
+    async function fetchColumnMappings() {
+        try {
+            const response = await fetch(COLUMN_MAPPING_URL);
+            if (!response.ok) throw new Error('Failed to fetch column mappings');
+            const result = await response.json();
+            columnMappings = result.mappings || [];
+            return columnMappings;
+        } catch (error) {
+            console.error('Error fetching column mappings:', error);
+            columnMappings = [];
+            return [];
+        }
+    }
+
+    // NEW: Load ALL data for sidebar (complete dataset)
+    async function loadAllDataForSidebar() {
+        try {
+            console.log("Loading ALL data for sidebar...");
+            const response = await fetch(API_URL);
+            if (!response.ok) throw new Error(`API request failed: ${response.status}`);
+            const result = await response.json();
+            
+            // Transform and store ALL data
+            allOriginalData = transformInventoryData(result.data || []);
+            console.log("Loaded ALL data for sidebar:", allOriginalData.length, "records");
+            
+            // Store ALL unique values for each field
+            if (allOriginalData.length > 0) {
+                const fields = Object.keys(allOriginalData[0]);
+                fields.forEach(field => {
+                    if (field.toLowerCase().includes('image') || field.toLowerCase().includes('picture')) {
+                        return;
+                    }
+                    const values = [...new Set(allOriginalData.map(item => {
+                        const val = item[field];
+                        return val === undefined || val === null || val === '' ? 'NULL' : val.toString();
+                    }))].sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
+                    allFieldValues[field] = values;
+                });
+                console.log("Stored ALL field values for sidebar");
+            }
+            
+        } catch (error) {
+            console.error('Error loading all data for sidebar:', error);
+            allOriginalData = [];
+        }
+    }
+
+    function transformInventoryData(data) {
+        if (!data || data.length === 0) return [];
+        
+        return data.map(item => {
+            const flatItem = {};
+            for (const category in item) {
+                if (category !== 'metadata' && typeof item[category] === 'object') {
+                    for (const key in item[category]) {
+                        flatItem[key] = item[category][key];
+                    }
+                }
+            }
+            if (item.metadata && item.metadata.created_at) {
+                flatItem.created_at = item.metadata.created_at;
+            }
+            return flatItem;
+        });
+    }
+
+    async function setupFieldFilters() {
+        if (areFiltersSetup) return;
+        const container = document.getElementById('fieldFiltersContainer');
+        
+        container.innerHTML = '<div class="no-data">Loading categories...</div>';
+        
+        try {
+            const response = await fetch(CATEGORIES_URL);
+            if (!response.ok) throw new Error('Failed to fetch configuration categories');
+            const result = await response.json();
+            const categories = result.categories || result.data || {};
+            container.innerHTML = '';
+            
+            for (const [categoryName, fields] of Object.entries(categories)) {
+                if (categoryName.toLowerCase().includes('image')) {
+                    continue;
+                }
+                
+                const availableFields = fields.filter(field => {
+                    if (typeof field === 'object') {
+                        const fieldName = field.displayName || field;
+                        if (fieldName.toLowerCase().includes('image') || fieldName.toLowerCase().includes('picture')) {
+                            return false;
+                        }
+                        // Check if we have data for this field
+                        return allFieldValues[fieldName] && allFieldValues[fieldName].length > 0;
+                    }
+                    return allFieldValues[field] && allFieldValues[field].length > 0;
+                });
+                
+                if (availableFields.length === 0) continue;
+                
+                const categorySection = document.createElement('div');
+                categorySection.className = 'filter-section';
+                categorySection.innerHTML = `
+                    <div class="accordion-header collapsed" data-category="${categoryName}">
+                        <div class="accordion-title">
+                            <i class="fas fa-folder"></i> ${formatFieldName(categoryName)}
+                        </div>
+                        <div class="accordion-icon">
+                            <i class="fas fa-chevron-down"></i>
+                        </div>
+                    </div>
+                    <div class="accordion-content" id="accordion-${categoryName}">
+                        <div class="accordion-content-inner">
+                        </div>
+                    </div>
+                `;
+                
+                const contentDiv = categorySection.querySelector('.accordion-content-inner');
+                
+                for (const field of availableFields) {
+                    const fieldName = typeof field === 'object' ? (field.displayName || field) : field;
+                    const values = allFieldValues[fieldName] || [];
+                    
+                    const fieldDiv = document.createElement('div');
+                    fieldDiv.className = 'field-filter-group';
+                    fieldDiv.innerHTML = `
+                        <div class="field-subheader">
+                            <div class="field-filter-title">
+                                ${formatFieldName(fieldName)}
+                            </div>
+                            <div class="action-buttons">
+                                <div class="filter-count" id="count_${fieldName}" style="display:none">0</div>
+                                <button class="action-btn select-all-btn" data-field="${fieldName}" title="Select All">
+                                    <i class="fas fa-check-circle"></i>
+                                </button>
+                                <button class="action-btn clear-all-btn" data-field="${fieldName}" title="Clear All">
+                                    <i class="fas fa-times-circle"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <input type="text" class="filter-search" placeholder="Search ${formatFieldName(fieldName)}" data-field="${fieldName}">
+                        <div class="value-list" id="values_${fieldName}">
+                            ${values.slice(0, 10).map(v => renderFilterItem(fieldName, v)).join('')}
+                            ${values.length > 10 ? `<div class="show-more" data-field="${fieldName}" data-expanded="false">Show more (${values.length - 10})</div>` : ''}
+                        </div>
+                    `;
+                    contentDiv.appendChild(fieldDiv);
+                    
+                    // Cache the container
+                    valueListsCache[fieldName] = fieldDiv.querySelector(`#values_${fieldName}`);
+                    
+                    // Store values in fieldFilters
+                    fieldFilters[fieldName] = values;
+                }
+                container.appendChild(categorySection);
+            }
+            
+            // If no categories found, show default view
+            if (container.children.length === 0) {
+                setupDefaultFieldFilters();
+            }
+            
+            initializeAccordions();
+            areFiltersSetup = true;
+            
+            // Update UI with current selections
+            updateAllFilterItems();
+            
+        } catch (error) {
+            console.error('Error loading categories:', error);
+            container.innerHTML = '<div class="no-data">Error loading categories</div>';
+            setupDefaultFieldFilters();
+            areFiltersSetup = true;
+        }
+    }
+
+    function setupDefaultFieldFilters() {
+        const container = document.getElementById('fieldFiltersContainer');
+        container.innerHTML = '';
+        
+        // Create filter sections for each field that has data
+        const fields = Object.keys(allFieldValues).filter(field => 
+            allFieldValues[field] && allFieldValues[field].length > 0
+        );
+        
+        if (fields.length === 0) {
+            container.innerHTML = '<div class="no-data">No data available for filtering</div>';
+            return;
+        }
+        
+        const categorySection = document.createElement('div');
+        categorySection.className = 'filter-section';
+        categorySection.innerHTML = `
+            <div class="accordion-header collapsed" data-category="Filters">
+                <div class="accordion-title">
+                    <i class="fas fa-filter"></i> Filters
+                </div>
+                <div class="accordion-icon">
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+            </div>
+            <div class="accordion-content" id="accordion-Filters">
+                <div class="accordion-content-inner">
+                </div>
+            </div>
+        `;
+        
+        const contentDiv = categorySection.querySelector('.accordion-content-inner');
+        
+        fields.forEach(fieldName => {
+            const values = allFieldValues[fieldName];
+            const fieldDiv = document.createElement('div');
+            fieldDiv.className = 'field-filter-group';
+            fieldDiv.innerHTML = `
+                <div class="field-subheader">
+                    <div class="field-filter-title">
+                        ${formatFieldName(fieldName)}
+                    </div>
+                    <div class="action-buttons">
+                        <div class="filter-count" id="count_${fieldName}" style="display:none">0</div>
+                        <button class="action-btn select-all-btn" data-field="${fieldName}" title="Select All">
+                            <i class="fas fa-check-circle"></i>
+                        </button>
+                        <button class="action-btn clear-all-btn" data-field="${fieldName}" title="Clear All">
+                            <i class="fas fa-times-circle"></i>
+                        </button>
+                    </div>
+                </div>
+                <input type="text" class="filter-search" placeholder="Search ${formatFieldName(fieldName)}" data-field="${fieldName}">
+                <div class="value-list" id="values_${fieldName}">
+                    ${values.slice(0, 10).map(v => renderFilterItem(fieldName, v)).join('')}
+                    ${values.length > 10 ? `<div class="show-more" data-field="${fieldName}" data-expanded="false">Show more (${values.length - 10})</div>` : ''}
+                </div>
+            `;
+            contentDiv.appendChild(fieldDiv);
+            
+            // Cache the container
+            valueListsCache[fieldName] = fieldDiv.querySelector(`#values_${fieldName}`);
+            
+            // Store values in fieldFilters
+            fieldFilters[fieldName] = values;
+        });
+        
+        container.appendChild(categorySection);
+        initializeAccordions();
+        areFiltersSetup = true;
+    }
+
+    function renderFilterItem(field, value, term = '') {
+        let displayValue = value;
+        if (term && value !== 'NULL') {
+            const regex = new RegExp(`(${term})`, 'ig');
+            displayValue = value.replace(regex, '<span class="highlight">$1</span>');
+        }
+        
+        // Check if selected (temporary) OR active (applied)
+        const isSelected = selectedFilters[field] && selectedFilters[field].has(value);
+        const isActive = activeFilters[field] && activeFilters[field].has(value);
+        
+        let className = 'field-filter-item';
+        if (isActive) className += ' active';
+        if (isSelected && !isActive) className += ' selected';
+        
+        return `<div class="${className}" data-field="${field}" data-value="${value}">
+            <label>${displayValue}</label>
+        </div>`;
+    }
+
+    function initializeAccordions() {
+        document.querySelectorAll('.accordion-header').forEach(header => {
+            header.addEventListener('click', function() {
+                const category = this.getAttribute('data-category');
+                const content = document.getElementById(`accordion-${category}`);
+                
+                if (this.classList.contains('collapsed')) {
+                    this.classList.remove('collapsed');
+                    content.classList.add('expanded');
+                } else {
+                    this.classList.add('collapsed');
+                    content.classList.remove('expanded');
+                }
+            });
+        });
+    }
+
+    function initializeButtons() {
+        // Apply Filter Button
+        const applyBtn = document.getElementById('applyFilterBtn');
+        if (applyBtn) {
+            applyBtn.addEventListener('click', applySelectedFilters);
+        }
+        
+        // Clear Filters Button
+        const clearBtn = document.getElementById('clearAllFiltersBtn');
+        if (clearBtn) {
+            clearBtn.addEventListener('click', clearAllFilters);
+        }
+        
+        // Download Button
+        const downloadBtn = document.getElementById('downloadBtn');
+        if (downloadBtn) {
+            downloadBtn.addEventListener('click', downloadReport);
+            downloadBtn.disabled = true;
+        }
+    }
+
+    async function applySelectedFilters() {
+        // Check if any filters are selected
+        const hasSelections = Object.keys(selectedFilters).some(field => 
+            selectedFilters[field] && selectedFilters[field].size > 0
+        );
+        
+        if (!hasSelections) {
+            showMessage('Please select filters first!', 'warning');
+            return;
+        }
+        
+        // Move selectedFilters to activeFilters
+        activeFilters = {};
+        Object.keys(selectedFilters).forEach(field => {
+            if (selectedFilters[field] && selectedFilters[field].size > 0) {
+                activeFilters[field] = new Set(selectedFilters[field]);
+            }
+        });
+        
+        // Clear selectedFilters (temporary selections)
+        selectedFilters = {};
+        
+        // Update UI to show active filters
+        updateAllFilterItems();
+        
+        // Load grouped data with new filters
+        await loadGroupedData();
+        saveInventoryState();
+        
+        // Show success message
+        showMessage('Filters applied successfully!', 'success');
+    }
+
+    async function clearAllFilters() {
+        // Clear both temporary and active filters
+        selectedFilters = {};
+        activeFilters = {};
+        
+        // Reset all UI
+        Object.keys(valueListsCache).forEach(field => {
+            const container = valueListsCache[field];
+            if (container) {
+                const items = container.querySelectorAll('.field-filter-item');
+                items.forEach(item => {
+                    item.classList.remove('active', 'selected');
+                });
+            }
+            updateFilterCount(field);
+            updateFilterSelectionCount(field);
+        });
+        
+        // Show all data (clear filters)
+        await loadGroupedData();
+        saveInventoryState();
+        
+        showMessage('All filters cleared!', 'info');
+    }
+
+    async function loadGroupedData() {
+        console.log("=== loadGroupedData START ===");
+        const summaryTable = document.getElementById('summaryTable');
+        summaryTable.innerHTML = '<div class="no-data">Loading grouped inventory data...</div>';
+        
+        try {
+            // Build request parameters
+            const params = new URLSearchParams();
+            
+            // Use selected columns
+            let columnsToSend = selectedColumns;
+            if (!columnsToSend || columnsToSend.length === 0) {
+                columnsToSend = getDefaultColumnsFromMappings();
+                console.log('Using default columns:', columnsToSend);
+            }
+            
+            console.log('Columns to send:', columnsToSend);
+            
+            if (columnsToSend.length > 0) {
+                params.append('columns', columnsToSend.join(','));
+            }
+            
+            // Add active filters
+            const filterObj = {};
+            Object.keys(activeFilters).forEach(field => {
+                if (activeFilters[field] && activeFilters[field].size > 0) {
+                    filterObj[field] = Array.from(activeFilters[field]);
+                }
+            });
+            
+            if (Object.keys(filterObj).length > 0) {
+                params.append('filters', JSON.stringify(filterObj));
+                console.log('Sending filters:', filterObj);
+            }
+            
+            const url = `${GROUPED_API_URL}?${params.toString()}`;
+            console.log('Fetch URL:', url);
+            
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                }
+            });
+            
+            console.log('Response status:', response.status);
+            
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('Response error text:', errorText);
+                throw new Error(`API request failed: ${response.status}`);
+            }
+            
+            const result = await response.json();
+            console.log('API Response:', result);
+            
+            if (result.success) {
+                inventoryData = result.data || [];
+                console.log('Grouped data loaded:', inventoryData.length, 'records');
+                
+                if (inventoryData.length > 0) {
+                    renderResults(inventoryData);
+                    
+                    // IMPORTANT: Filter sidebar based on CURRENTLY FILTERED data
+                    // But show ALL values that exist in the filtered subset
+                    updateSidebarWithFilteredData();
+                    
+                    const downloadBtn = document.getElementById('downloadBtn');
+                    if (downloadBtn) downloadBtn.disabled = false;
+                    
+                } else {
+                    console.log('No data returned from API');
+                    summaryTable.innerHTML = '<div class="no-data">No inventory data found</div>';
+                    const downloadBtn = document.getElementById('downloadBtn');
+                    if (downloadBtn) downloadBtn.disabled = true;
+                    
+                    // Even if no grouped data, update sidebar based on filters
+                    updateSidebarWithFilteredData();
+                }
+            } else {
+                console.error('API returned success: false', result.message);
+                throw new Error(result.message || 'Failed to load grouped data');
+            }
+            
+        } catch (error) {
+            console.error('Error in loadGroupedData:', error);
+            summaryTable.innerHTML = `<div class="no-data">Error loading inventory data: ${error.message}</div>`;
+            const downloadBtn = document.getElementById('downloadBtn');
+            if (downloadBtn) downloadBtn.disabled = true;
+        }
+        console.log("=== loadGroupedData END ===");
+    }
+
+    // NEW FUNCTION: Update sidebar based on currently filtered data
+    // This shows only values that exist in the filtered subset
+    function updateSidebarWithFilteredData() {
+        if (allOriginalData.length === 0) return;
+        
+        // Get the currently filtered subset of ALL data
+        let filteredSubset = [...allOriginalData];
+        
+        // Apply active filters to get the current subset
+        Object.keys(activeFilters).forEach(field => {
+            if (activeFilters[field] && activeFilters[field].size > 0) {
+                filteredSubset = filteredSubset.filter(item => {
+                    const val = (item[field]?.toString() || 'NULL');
+                    return activeFilters[field].has(val);
+                });
+            }
+        });
+        
+        console.log("Filtered subset for sidebar:", filteredSubset.length, "records");
+        
+        // Update each field's values in the sidebar
+        Object.keys(valueListsCache).forEach(fieldName => {
+            const container = valueListsCache[fieldName];
+            if (!container) return;
+            
+            // Get unique values from the FILTERED subset
+            const valuesInFilteredSubset = [...new Set(filteredSubset.map(i => {
+                const val = i[fieldName];
+                return val === undefined || val === null || val === '' ? 'NULL' : val.toString();
+            }))].sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
+            
+            // Get current search term if any
+            const searchInput = document.querySelector(`.filter-search[data-field="${fieldName}"]`);
+            const searchTerm = searchInput ? searchInput.value.trim().toLowerCase() : '';
+            
+            // Filter by search term
+            const filteredValues = searchTerm ? 
+                valuesInFilteredSubset.filter(v => v.toLowerCase().includes(searchTerm)) : 
+                valuesInFilteredSubset;
+            
+            // Get selection states
+            const selectedValues = selectedFilters[fieldName] || new Set();
+            const activeValues = activeFilters[fieldName] || new Set();
+            
+            // Update the display
+            if (filteredValues.length > 0) {
+                container.innerHTML = filteredValues.slice(0, 10).map(v => renderFilterItem(fieldName, v, searchTerm)).join('') + 
+                (filteredValues.length > 10 ? 
+                    `<div class="show-more" data-field="${fieldName}" data-expanded="false">
+                        Show more (${filteredValues.length - 10})
+                    </div>` : '');
+            } else {
+                container.innerHTML = '<div class="no-data">No values in current filter</div>';
+            }
+            
+            // Update counts
+            updateFilterCount(fieldName);
+            updateFilterSelectionCount(fieldName);
+        });
+    }
+
+    function setupEventListeners() {
+        document.addEventListener('click', handleFilterClick);
+        
+        let searchTimeout;
+        document.addEventListener('input', e => {
+            if (e.target.classList.contains('filter-search')) {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    handleFilterSearch(e.target);
+                }, 300);
+            }
+        });
+    }
+
+    function handleFilterClick(e) {
+        const selectAllBtn = e.target.closest('.select-all-btn');
+        if (selectAllBtn) {
+            e.preventDefault();
+            e.stopPropagation();
+            optimizeSelectAll(selectAllBtn);
+            return;
+        }
+        
+        const clearAllBtn = e.target.closest('.clear-all-btn');
+        if (clearAllBtn) {
+            e.preventDefault();
+            e.stopPropagation();
+            optimizeClearAll(clearAllBtn);
+            return;
+        }
+        
+        const item = e.target.closest('.field-filter-item');
+        if (item) {
+            handleFilterItemClick(item);
+            return;
+        }
+        
+        const showMore = e.target.closest('.show-more');
+        if (showMore) {
+            handleShowMoreClick(showMore);
+            return;
+        }
+    }
+
+    function handleFilterItemClick(item) {
+        const field = item.dataset.field;
+        const value = item.dataset.value;
+        
+        // Store in selectedFilters (temporary)
+        if (!selectedFilters[field]) {
+            selectedFilters[field] = new Set();
+        }
+        
+        if (selectedFilters[field].has(value)) {
+            selectedFilters[field].delete(value);
+            item.classList.remove('selected');
+        } else {
+            selectedFilters[field].add(value);
+            item.classList.add('selected');
+        }
+        
+        updateFilterSelectionCount(field);
+    }
+
+    function handleFilterSearch(searchInput) {
+        const field = searchInput.dataset.field;
+        const term = searchInput.value.trim().toLowerCase();
+        
+        // Get values from fieldFilters (which contains ALL values for this field)
+        const values = fieldFilters[field] || [];
+        const filteredValues = values.filter(v => v.toLowerCase().includes(term));
+        const container = valueListsCache[field];
+        
+        if (container) {
+            const selectedValues = selectedFilters[field] || new Set();
+            const activeValues = activeFilters[field] || new Set();
+            
+            if (filteredValues.length > 0) {
+                container.innerHTML = filteredValues.slice(0, 10).map(v => renderFilterItem(field, v, term)).join('') + 
+                (filteredValues.length > 10 ? 
+                    `<div class="show-more" data-field="${field}" data-expanded="false">
+                        Show more (${filteredValues.length - 10})
+                    </div>` : '');
+            } else {
+                container.innerHTML = '<div class="no-data">No matching values</div>';
+            }
+        }
+    }
+
+    function handleShowMoreClick(showMore) {
+        const field = showMore.dataset.field;
+        const expanded = showMore.dataset.expanded === 'true';
+        
+        const searchInput = document.querySelector(`.filter-search[data-field="${field}"]`);
+        const searchTerm = searchInput ? searchInput.value.trim().toLowerCase() : '';
+        
+        // Get values from fieldFilters (ALL values)
+        const allValues = fieldFilters[field] || [];
+        const filteredValues = searchTerm ? 
+            allValues.filter(v => v.toLowerCase().includes(searchTerm)) : 
+            allValues;
+        
+        const container = valueListsCache[field];
+        if (!container) return;
+        
+        const selectedValues = selectedFilters[field] || new Set();
+        const activeValues = activeFilters[field] || new Set();
+        
+        if (expanded) {
+            // Show limited view
+            container.innerHTML = filteredValues.slice(0, 10).map(v => renderFilterItem(field, v, searchTerm)).join('') + 
+            (filteredValues.length > 10 ? 
+                `<div class="show-more" data-field="${field}" data-expanded="false">
+                    Show more (${filteredValues.length - 10})
+                </div>` : '');
+        } else {
+            // Show all view
+            container.innerHTML = filteredValues.map(v => renderFilterItem(field, v, searchTerm)).join('') + 
+            `<div class="show-more" data-field="${field}" data-expanded="true">Show less</div>`;
+        }
+    }
+
+    function getDefaultColumnsFromMappings() {
+        const defaultColumns = [];
+        
+        // 1. Get first ItemMaster field (Product)
+        const itemMasterFields = columnMappings
+            .filter(m => m.ConfigName === 'ItemMaster')
+            .sort((a, b) => a.SerialNo - b.SerialNo);
+        
+        if (itemMasterFields.length > 0) {
+            defaultColumns.push(itemMasterFields[0].DisplayName);
+        }
+        
+        // 2. Get second ItemPrice field (MRP)
+        const itemPriceFields = columnMappings
+            .filter(m => m.ConfigName === 'ItemPrice')
+            .sort((a, b) => a.SerialNo - b.SerialNo);
+        
+        if (itemPriceFields.length >= 2) {
+            defaultColumns.push(itemPriceFields[1].DisplayName);
+        } else if (itemPriceFields.length > 0) {
+            defaultColumns.push(itemPriceFields[0].DisplayName);
+        }
+        
+        // 3. Get first Quantity field
+        const quantityFields = columnMappings
+            .filter(m => m.ConfigName === 'Quantity')
+            .sort((a, b) => a.SerialNo - b.SerialNo);
+        
+        if (quantityFields.length > 0) {
+            defaultColumns.push(quantityFields[0].DisplayName);
+        }
+        
+        return defaultColumns;
+    }
+
+    function optimizeSelectAll(button) {
+        if (isProcessingBulk) return;
+        isProcessingBulk = true;
+        
+        const field = button.dataset.field;
+        const container = valueListsCache[field];
+        if (!container) {
+            isProcessingBulk = false;
+            return;
+        }
+        
+        // Get CURRENT available values (from filtered subset)
+        const currentVisibleItems = container.querySelectorAll('.field-filter-item');
+        const currentValues = Array.from(currentVisibleItems).map(item => item.dataset.value);
+        
+        if (!selectedFilters[field]) {
+            selectedFilters[field] = new Set();
+        }
+        
+        // Select all CURRENTLY VISIBLE values
+        currentValues.forEach(v => selectedFilters[field].add(v));
+        
+        // Update UI
+        currentVisibleItems.forEach(item => {
+            item.classList.add('selected');
+            item.classList.remove('active');
+        });
+        
+        updateFilterSelectionCount(field);
+        isProcessingBulk = false;
+    }
+
+    function optimizeClearAll(button) {
+        if (isProcessingBulk) return;
+        isProcessingBulk = true;
+        
+        const field = button.dataset.field;
+        
+        // Clear temporary selections for this field
+        if (selectedFilters[field]) {
+            delete selectedFilters[field];
+        }
+        
+        const container = valueListsCache[field];
+        if (container) {
+            const visibleItems = container.querySelectorAll('.field-filter-item');
+            visibleItems.forEach(item => {
+                item.classList.remove('selected');
+            });
+        }
+        
+        updateFilterSelectionCount(field);
+        isProcessingBulk = false;
+    }
+
+    function updateAllFilterItems() {
+        Object.keys(valueListsCache).forEach(field => {
+            const container = valueListsCache[field];
+            if (container) {
+                const items = container.querySelectorAll('.field-filter-item');
+                items.forEach(item => {
+                    const itemField = item.dataset.field;
+                    const itemValue = item.dataset.value;
+                    
+                    const isSelected = selectedFilters[itemField] && selectedFilters[itemField].has(itemValue);
+                    const isActive = activeFilters[itemField] && activeFilters[itemField].has(itemValue);
+                    
+                    item.classList.remove('active', 'selected');
+                    if (isActive) item.classList.add('active');
+                    if (isSelected && !isActive) item.classList.add('selected');
+                });
+                
+                updateFilterCount(field);
+                updateFilterSelectionCount(field);
+            }
+        });
+    }
+
+    function updateFilterCount(field) {
+        const count = activeFilters[field]?.size || 0;
+        const badge = document.getElementById(`count_${field}`);
+        if (count > 0) {
+            badge.textContent = `${count} applied`;
+            badge.style.display = 'inline-block';
+            badge.style.background = '#28a745';
+        } else {
+            badge.textContent = '0';
+            badge.style.display = 'none';
+        }
+    }
+
+    function updateFilterSelectionCount(field) {
+        const count = selectedFilters[field]?.size || 0;
+        const badge = document.getElementById(`count_${field}`);
+        if (count > 0) {
+            badge.textContent = `${count} selected`;
+            badge.style.display = 'inline-block';
+            badge.style.background = '#7209b7';
+        } else if (!activeFilters[field] || activeFilters[field].size === 0) {
+            badge.style.display = 'none';
+        }
+    }
+
+    function setupColumnSelector() {
+        const btn = document.getElementById('columnSelectorBtn');
+        const content = document.getElementById('columnSelectorContent');
+        const optionsContainer = document.getElementById('columnOptionsContainer');
+        const overlay = document.getElementById('overlay');
+        
+        if (!overlay) {
+            const newOverlay = document.createElement('div');
+            newOverlay.className = 'overlay';
+            newOverlay.id = 'overlay';
+            document.body.appendChild(newOverlay);
+        }
+
+        // Get all available fields from column mappings
+        const allAvailableFields = columnMappings
+            .map(m => m.DisplayName)
+            .filter(field => {
+                const lowerField = field.toLowerCase();
+                return !(lowerField.includes('image') || lowerField.includes('picture'));
+            })
+            .sort((a, b) => a.localeCompare(b));
+
+        // Get default columns
+        const dynamicDefaults = getDefaultColumnsFromMappings();
+        
+        // If no columns selected, use defaults
+        if (selectedColumns.length === 0) {
+            selectedColumns = dynamicDefaults.filter(col => 
+                allAvailableFields.includes(col)
+            );
+        }
+        
+        // Create column selector UI
+        const gridContainer = document.createElement('div');
+        gridContainer.className = 'column-options-grid';
+        
+        let html = '';
+        
+        // Add all fields
+        allAvailableFields.forEach(field => {
+            const isChecked = selectedColumns.includes(field);
+            html += `
+                <div class="column-option">
+                    <input type="checkbox" id="col_${field}" value="${field}" ${isChecked ? 'checked' : ''}>
+                    <label for="col_${field}">${formatFieldName(field)}</label>
+                </div>
+            `;
+        });
+        
+        gridContainer.innerHTML = html;
+        optionsContainer.innerHTML = '';
+        optionsContainer.appendChild(gridContainer);
+
+        btn.addEventListener('click', () => {
+            content.classList.toggle('show');
+            document.getElementById('overlay').classList.toggle('show');
+        });
+
+        document.getElementById('overlay').addEventListener('click', () => {
+            content.classList.remove('show');
+            document.getElementById('overlay').classList.remove('show');
+        });
+
+        document.getElementById('saveColumnsBtn').addEventListener('click', () => {
+            const checkboxes = optionsContainer.querySelectorAll('input[type="checkbox"]:checked');
+            const selected = Array.from(checkboxes).map(cb => cb.value);
+            
+            selectedColumns = selected;
+            
+            if (selectedColumns.length === 0) {
+                selectedColumns = getDefaultColumnsFromMappings().filter(col => 
+                    allAvailableFields.includes(col)
+                );
+            }
+            
+            // Save to backend
+            fetch(SAVE_COLUMNS_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ columns: selectedColumns })
+            }).catch(error => console.error('Error saving column preferences:', error));
+            
+            content.classList.remove('show');
+            document.getElementById('overlay').classList.remove('show');
+            
+            // Reload data with new columns
+            loadGroupedData();
+            saveInventoryState();
+            
+            showMessage('Columns updated successfully!', 'success');
+        });
+    }
+
+    function getFirstItemMasterField() {
+        const itemMasterFields = columnMappings
+            .filter(m => m.ConfigName === 'ItemMaster')
+            .sort((a, b) => a.SerialNo - b.SerialNo);
+        
+        return itemMasterFields.length > 0 ? itemMasterFields[0].DisplayName : null;
+    }
+
+    function saveInventoryState() {
+        const state = {
+            activeFilters: Object.fromEntries(
+                Object.entries(activeFilters).map(([field, values]) => [field, Array.from(values)])
+            ),
+            selectedColumns: selectedColumns
+        };
+        localStorage.setItem('inventoryState', JSON.stringify(state));
+    }
+
+    function downloadReport() {
+        if (!inventoryData || inventoryData.length === 0) {
+            alert('No data to download');
+            return;
+        }
+        
+        const csvContent = convertToCSV(inventoryData);
+        
+        const blob = new Blob(
+            ["\uFEFF" + csvContent],
+            { type: 'text/csv;charset=utf-8;' }
+        );
+
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-').split('T')[0];
+        const filename = `inventory-report-${timestamp}.csv`;
+        
+        link.setAttribute('href', url);
+        link.setAttribute('download', filename);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        showMessage(`Report downloaded: ${filename}`, 'success');
+    }
+
+    function convertToCSV(data) {
+        if (!data || data.length === 0) return '';
+        
+        // Get all available fields from the data
+        const allFields = Object.keys(data[0] || {});
+        
+        const displayColumns = selectedColumns.length > 0 
+            ? selectedColumns.filter(col => allFields.includes(col))
+            : allFields;
+        
+        const firstItemMasterField = getFirstItemMasterField();
+        const isFirstItemMasterSelected = displayColumns.includes(firstItemMasterField);
+
+        displayColumns.sort((a, b) => {
+            if (isFirstItemMasterSelected) {
+                if (a === firstItemMasterField) return -1;  
+                if (b === firstItemMasterField) return 1;  
+            }
+            
+            const mappingA = columnMappings.find(m => m.DisplayName === a);
+            const mappingB = columnMappings.find(m => m.DisplayName === b);
+            
+            const isItemCalcA = mappingA && mappingA.ConfigName === 'ItemCalc';
+            const isItemCalcB = mappingB && mappingB.ConfigName === 'ItemCalc';
+            
+            if (isItemCalcA && !isItemCalcB) return 1;  // ItemCalc goes last
+            if (!isItemCalcA && isItemCalcB) return -1; // Non-ItemCalc goes first
+            return 0;
+        });
+        
+        // Create headers
+        const headers = displayColumns.map(col => `"${formatFieldName(col)}"`).join(',');
+        
+        // DYNAMIC: Identify numeric fields from columnMappings
+        const numericFields = displayColumns.filter(col => {
+            const mapping = columnMappings.find(m => m.DisplayName === col);
+            if (mapping) {
+                // These are the ConfigNames that should be summed
+                const numericConfigs = ['Quantity', 'ItemCalc'];
+                return numericConfigs.includes(mapping.ConfigName);
+            }
+            return false;
+        });
+        
+        // Calculate totals only for numeric fields
+        const totals = {};
+        numericFields.forEach(col => {
+            totals[col] = 0;
+            data.forEach(item => {
+                const value = parseFloat(item[col]) || 0;
+                totals[col] += value;
+            });
+        });
+        
+        // Create rows
+        const rows = data.map(item => {
+            const rowValues = displayColumns.map(col => {
+                let value = item[col];
+                if (value === undefined || value === null || value === '') {
+                    return '""';
+                }
+                const escapedValue = String(value).replace(/"/g, '""');
+                return `"${escapedValue}"`;
+            });
+            return rowValues.join(',');
+        });
+        
+        // Create CSV content
+        let csvContent = [headers, ...rows].join('\n');
+        
+        // Add total row if we have numeric totals
+        if (numericFields.length > 0 && Object.values(totals).some(total => total > 0)) {
+            const totalRow = displayColumns.map((col, index) => {
+                if (numericFields.includes(col) && totals[col] > 0) {
+                    const mapping = columnMappings.find(m => m.DisplayName === col);
+                    if (mapping && ['ItemPrice', 'ItemCalc'].includes(mapping.ConfigName)) {
+                        return `"₹${totals[col].toFixed(2)}"`;
+                    } else {
+                        return `"${totals[col]}"`;
+                    }
+                } else if (index === 0) {
+                    return '"GRAND TOTAL"';
+                } else {
+                    return '""';
+                }
+            }).join(',');
+            
+            csvContent += '\n' + totalRow;
+        }
+        
+        return csvContent;
+    }
+
+    function renderResults(data) {
+        const container = document.getElementById('summaryTable');
+        if (!data || data.length === 0) {
+            container.innerHTML = '<div class="no-data">No matching items found</div>';
+            const downloadBtn = document.getElementById('downloadBtn');
+            if (downloadBtn) downloadBtn.disabled = true;
+            return;
+        }
+        
+        const downloadBtn = document.getElementById('downloadBtn');
+        if (downloadBtn) downloadBtn.disabled = false;
+        
+        // Get all available fields from the data
+        const allFields = Object.keys(data[0] || {});
+        
+        // Use selectedColumns if available, otherwise use all fields
+        const displayColumns = selectedColumns.length > 0 
+            ? selectedColumns.filter(col => allFields.includes(col))
+            : allFields;
+        
+        // Get first ItemMaster field (Product)
+        const firstItemMasterField = getFirstItemMasterField();
+        const isFirstItemMasterSelected = displayColumns.includes(firstItemMasterField);
+
+        displayColumns.sort((a, b) => {
+            // If first ItemMaster (Product) is selected, it goes FIRST
+            if (isFirstItemMasterSelected) {
+                if (a === firstItemMasterField) return -1;  // Product goes first
+                if (b === firstItemMasterField) return 1;   // Product goes first
+            }
+            
+            // For other columns, use the original ItemCalc-last logic
+            const mappingA = columnMappings.find(m => m.DisplayName === a);
+            const mappingB = columnMappings.find(m => m.DisplayName === b);
+            
+            const isItemCalcA = mappingA && mappingA.ConfigName === 'ItemCalc';
+            const isItemCalcB = mappingB && mappingB.ConfigName === 'ItemCalc';
+            
+            if (isItemCalcA && !isItemCalcB) return 1;  // ItemCalc goes last
+            if (!isItemCalcA && isItemCalcB) return -1; // Non-ItemCalc goes first
+            return 0;
+        });
+        
+        // Categorize columns based on column mappings
+        const numericFields = [];
+        const displayFields = [];
+        
+        displayColumns.forEach(col => {
+            const mapping = columnMappings.find(m => m.DisplayName === col);
+            if (mapping) {
+                if (mapping.ConfigName === 'ItemCalc' || mapping.ConfigName === 'Quantity') {
+                    numericFields.push(col);
+                } else if (mapping.ConfigName === 'ItemPrice') {
+                    displayFields.push(col);
+                }
+            }
+        });
+        
+        // Calculate totals for numeric fields
+        const totals = {};
+        numericFields.forEach(col => {
+            totals[col] = 0;
+            data.forEach(item => {
+                const value = item[col];
+                if (value !== undefined && value !== null) {
+                    const numValue = parseFloat(value);
+                    if (!isNaN(numValue)) {
+                        totals[col] += numValue;
+                    }
+                }
+            });
+        });
+        
+        // Create results count display
+        const resultsCount = document.createElement('div');
+        resultsCount.className = 'results-count';
+        
+        resultsCount.innerHTML = `
+            <div style="display: flex; flex-wrap: wrap; gap: 15px; align-items: center;">
+                <span>Showing ${data.length} grouped results</span>
+            </div>
+        `;
+        
+        // Create table headers
+        const headers = displayColumns.map(col => 
+            `<th>${formatFieldName(col)}</th>`
+        ).join('');
+        
+        // Sort data by first column
+        let sortedData = [...data];
+        if (displayColumns.length > 0) {
+            sortedData.sort((a, b) => {
+                const aValue = (a[displayColumns[0]] || '').toString().toLowerCase();
+                const bValue = (b[displayColumns[0]] || '').toString().toLowerCase();
+                return aValue.localeCompare(bValue, 'en', { sensitivity: 'base' });
+            });
+        }
+        
+        // Create table rows
+        const rows = sortedData.map(item => {
+            const cells = displayColumns.map(col => {
+                let value = item[col];
+                
+                if (value === undefined || value === null || value === '') {
+                    return '<td>N/A</td>';
+                }
+                
+                // Check if this is a numeric field
+                const isNumericField = numericFields.includes(col);
+                const isDisplayField = displayFields.includes(col);
+                
+                if (isNumericField || isDisplayField) {
+                    const numValue = parseFloat(value);
+                    if (!isNaN(numValue)) {
+                        const mapping = columnMappings.find(m => m.DisplayName === col);
+                        const isPriceField = mapping && mapping.ConfigName === 'ItemPrice';
+                        const isCalcField = mapping && mapping.ConfigName === 'ItemCalc';
+                        
+                        if (isPriceField || isCalcField) {
+                            return `<td style="text-align: right;">₹${numValue.toLocaleString('en-IN', {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2
+                            })}</td>`;
+                        } else {
+                            return `<td style="text-align: right;">${numValue.toLocaleString('en-IN')}</td>`;
+                        }
+                    }
+                }
+                
+                return `<td>${value}</td>`;
+            }).join('');
+            return `<tr>${cells}</tr>`;
+        }).join('');
+        
+        // Create total row if we have numeric totals
+        let totalRow = '';
+        const hasTotals = Object.values(totals).some(total => total > 0);
+        
+        if (hasTotals && sortedData.length > 0) {
+            const totalCells = displayColumns.map((col, index) => {
+                if (numericFields.includes(col) && totals[col] > 0) {
+                    const mapping = columnMappings.find(m => m.DisplayName === col);
+                    const isCalcField = mapping && mapping.ConfigName === 'ItemCalc';
+                    
+                    if (isCalcField) {
+                        return `<td class="calc-total">
+                            <strong>₹${totals[col].toLocaleString('en-IN', {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2
+                            })}</strong>
+                        </td>`;
+                    } else {
+                        return `<td class="total-cell" style="text-align: right;">
+                            <strong>${totals[col].toLocaleString('en-IN')}</strong>
+                        </td>`;
+                    }
+                } else if (displayFields.includes(col)) {
+                    return `<td class="total-cell"></td>`;
+                } else if (index === 0) {
+                    return `<td class="total-cell" style="text-align: left; font-weight: bold;">
+                        <strong>GRAND TOTAL</strong>
+                    </td>`;
+                } else {
+                    return `<td class="total-cell"></td>`;
+                }
+            }).join('');
+            
+            totalRow = `<tfoot><tr>${totalCells}</tr></tfoot>`;
+        }
+        
+        container.innerHTML = `
+            ${resultsCount.outerHTML}
+            <div class="table-container-wrapper">
+                <div class="table-scroll-top">
+                    <div class="scrollbar-dummy"></div>
+                </div>
+                <div class="table-container">
+                    <table class="results-table">
+                        <thead><tr>${headers}</tr></thead>
+                        <tbody>${rows}</tbody>
+                        ${totalRow}
+                    </table>
+                </div>
+            </div>`;
+        
+        // Update scrollbar
+        setTimeout(() => {
+            const table = container.querySelector('.results-table');
+            const dummy = container.querySelector('.scrollbar-dummy');
+            if (table && dummy) {
+                dummy.style.width = table.scrollWidth + 'px';
+            }
+            syncTableScroll();
+        }, 100);
+    }
+
+    function syncTableScroll() {
+        const tableWrapper = document.querySelector('.table-container-wrapper');
+        if (!tableWrapper) return;
+        
+        const topScroll = tableWrapper.querySelector('.table-scroll-top');
+        const mainTable = tableWrapper.querySelector('.table-container');
+        
+        if (topScroll && mainTable) {
+            const dummyDiv = topScroll.querySelector('.scrollbar-dummy');
+            if (dummyDiv) {
+                const tableWidth = mainTable.querySelector('.results-table').scrollWidth;
+                dummyDiv.style.width = tableWidth + 'px';
+            }
+            
+            topScroll.addEventListener('scroll', function() {
+                mainTable.scrollLeft = this.scrollLeft;
+            });
+            
+            mainTable.addEventListener('scroll', function() {
+                topScroll.scrollLeft = this.scrollLeft;
+            });
+        }
+    }
+
+    function formatFieldName(f) {
+        return f.replace(/([A-Z])/g, ' $1').replace(/^./, s => s.toUpperCase());
+    }
+
+    function showMessage(text, type = 'info') {
+        const message = document.createElement('div');
+        const colors = {
+            success: '#28a745',
+            info: '#17a2b8',
+            warning: '#ffc107',
+            error: '#dc3545'
+        };
+        
+        message.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: ${colors[type] || colors.info};
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: slideIn 0.3s ease;
+        `;
+        
+        const icons = {
+            success: 'fa-check-circle',
+            info: 'fa-info-circle',
+            warning: 'fa-exclamation-triangle',
+            error: 'fa-exclamation-circle'
+        };
+        
+        message.innerHTML = `
+            <i class="fas ${icons[type] || icons.info}" style="font-size: 18px;"></i>
+            <div style="font-weight: 500;">${text}</div>
+        `;
+        
+        document.body.appendChild(message);
+        
+        setTimeout(() => {
+            message.style.animation = 'slideOut 0.3s ease';
+            setTimeout(() => {
+                if (message.parentNode) {
+                    document.body.removeChild(message);
+                }
+            }, 300);
+        }, 3000);
+    }
+
+    // Add CSS for animations
+    const style = document.createElement('style');
+    style.textContent = `
+        .field-filter-item.selected {
+            background-color: #e9d8fd !important;
+            border-left: 3px solid #7209b7 !important;
+        }
+        .field-filter-item.active {
+            background-color: #d4edda !important;
+            border-left: 3px solid #28a745 !important;
+        }
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+    `;
+    document.head.appendChild(style);
+</script>
+<script src="{{ url_for('static', filename='js/navigation.js') }}"></script>
+</body>
+</html>

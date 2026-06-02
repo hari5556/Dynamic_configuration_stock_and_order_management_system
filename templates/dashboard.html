@@ -1,0 +1,1152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Configuration Manager</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3a56d4;
+            --secondary: #030230ff;
+            --success: #06d6a0;
+            --warning: #ffd166;
+            --danger: #ef476f;
+            --info: #118ab2;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --light-gray: #e9ecef;
+            --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            --transition: all 0.3s ease;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: "Poppins", "Inter", "SF Pro Display", "Segoe UI", "Manrope", sans-serif;
+            background: #f0f2f5;
+            color: var(--dark);
+            line-height: 1.5;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        /* SMALLER Navigation Styles - Consistent with home page but smaller */
+         ul {
+            list-style: none;
+            background: var(--primary);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            padding: 2px 10px;
+            min-height: 30px; 
+            height: auto;
+            line-height: 1;
+        }
+        
+        
+        li {
+            display: inline-flex;
+            flex-shrink: 0;
+        }
+        
+        li a, .dropbtn {
+            display: flex;
+            align-items: center;
+            color: white;
+            text-decoration: none;
+            padding: 6px 10px; /* was 10px 14px */
+            font-size: 13px;   /* was 14px */
+            font-weight: 500;  /* bold style restored */
+            white-space: nowrap;
+            transition: var(--transition);
+            border-radius: 6px;
+            height: auto;
+            line-height: 1.2;
+        }
+        
+        li a:hover, .dropdown:hover .dropbtn {
+            background: var(--dark);
+        }
+        
+        li.dropdown {
+            position: relative;
+        }
+        
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: white;
+            min-width: 180px;
+            box-shadow: var(--card-shadow);
+            z-index: 1001;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .dropdown-content a {
+            color: var(--dark);
+            padding: 10px 14px;
+            text-decoration: none;
+            display: block;
+            font-size: 13px;
+            transition: var(--transition);
+        }
+
+        
+        .dropdown-content a:hover {
+            background: var(--light-gray);
+            color: var(--primary);
+        }
+        
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
+        /* Your existing dashboard styles */
+        /* Dashboard Header - Reduced Gap */
+        .dashboard-header {
+            background: white;
+            padding: 18px 20px;
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
+            margin: 30px 0 18px 0; /* Reduced margin */
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .dashboard-header h1 {
+            color: var(--primary);
+            font-size: 24px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .period-selector {
+            display: flex;
+            background: white;
+            border-radius: 6px;
+            padding: 3px;
+            box-shadow: var(--card-shadow);
+        }
+        
+        .period-btn {
+            padding: 6px 12px;
+            border: none;
+            background: transparent;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: var(--transition);
+            font-size: 13px;
+        }
+        
+        .period-btn.active {
+            background: var(--primary);
+            color: white;
+        }
+        
+        /* Stats Grid - More Compact */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 15px;
+            margin-bottom: 18px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 16px;
+            border-radius: 10px;
+            box-shadow: var(--card-shadow);
+            transition: var(--transition);
+            border-top: 3px solid var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .stat-card.orders { border-top-color: var(--primary); }
+        .stat-card.revenue { border-top-color: var(--success); }
+        .stat-card.customers { border-top-color: var(--info); }
+        .stat-card.inventory { border-top-color: var(--warning); }
+        
+        .stat-icon {
+            width: 45px;
+            height: 45px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+        
+        .stat-card.orders .stat-icon { background: rgba(67, 97, 238, 0.1); color: var(--primary); }
+        .stat-card.revenue .stat-icon { background: rgba(6, 214, 160, 0.1); color: var(--success); }
+        .stat-card.customers .stat-icon { background: rgba(17, 138, 178, 0.1); color: var(--info); }
+        .stat-card.inventory .stat-icon { background: rgba(255, 209, 102, 0.1); color: var(--warning); }
+        
+        .stat-content {
+            flex: 1;
+        }
+        
+        .stat-value {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 2px;
+        }
+        
+        .stat-label {
+            color: var(--gray);
+            font-size: 13px;
+            font-weight: 500;
+        }
+        
+        .stat-trend {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 11px;
+            margin-top: 3px;
+        }
+        
+        .trend-up { color: var(--success); }
+        .trend-down { color: var(--danger); }
+        
+        /* Main Content Grid */
+        .content-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 15px;
+        }
+        
+        /* Alerts Section */
+        .section-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: var(--card-shadow);
+            overflow: hidden;
+            height: fit-content;
+        }
+        
+        .section-header {
+            padding: 15px 18px;
+            border-bottom: 1px solid var(--light-gray);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .section-header h3 {
+            font-size: 16px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .section-body {
+            padding: 0;
+            max-height: 350px;
+            overflow-y: auto;
+        }
+        
+        /* Alert Items */
+        .alert-item {
+            padding: 12px 18px;
+            border-bottom: 1px solid var(--light-gray);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+        
+        .alert-item:hover {
+            background: var(--light);
+        }
+        
+        .alert-item:last-child {
+            border-bottom: none;
+        }
+        
+        .alert-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .alert-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+        
+        .alert-low-stock .alert-icon { background: rgba(255, 209, 102, 0.15); color: var(--warning); }
+        .alert-out-of-stock .alert-icon { background: rgba(239, 71, 111, 0.15); color: var(--danger); }
+        
+        .alert-details h4 {
+            font-weight: 600;
+            margin-bottom: 2px;
+            font-size: 13px;
+        }
+        
+        .alert-details p {
+            color: var(--gray);
+            font-size: 12px;
+        }
+        
+        .itemmaster-details {
+            font-size: 11px;
+            color: var(--gray);
+            margin-top: 6px;
+            display: none;
+        }
+        
+        .alert-item.active .itemmaster-details {
+            display: block;
+        }
+        
+        .itemmaster-details div {
+            margin-bottom: 1px;
+        }
+        
+        /* Product Analysis Cards */
+        .analysis-cards {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+        
+        .analysis-card {
+            background: white;
+            border-radius: 10px;
+            padding: 16px;
+            box-shadow: var(--card-shadow);
+            transition: var(--transition);
+            text-decoration: none;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .analysis-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .analysis-card.top-moving { border-left: 3px solid var(--success); }
+        .analysis-card.slow-moving { border-left: 3px solid var(--warning); }
+        .analysis-card.non-moving { border-left: 3px solid var(--danger); }
+        
+        .analysis-icon {
+            width: 45px;
+            height: 45px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+        
+        .analysis-card.top-moving .analysis-icon { background: rgba(6, 214, 160, 0.1); color: var(--success); }
+        .analysis-card.slow-moving .analysis-icon { background: rgba(255, 209, 102, 0.1); color: var(--warning); }
+        .analysis-card.non-moving .analysis-icon { background: rgba(239, 71, 111, 0.1); color: var(--danger); }
+        
+        .analysis-content {
+            flex: 1;
+        }
+        
+        .analysis-title {
+            font-weight: 600;
+            margin-bottom: 3px;
+            font-size: 15px;
+        }
+        
+        .analysis-subtitle {
+            font-size: 12px;
+            color: var(--gray);
+        }
+        
+        /* Empty States */
+        .no-data, .loading {
+            padding: 25px 18px;
+            text-align: center;
+            color: var(--gray);
+            font-style: italic;
+            font-size: 14px;
+        }
+        
+        .loading i {
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .button-dashboard{
+            padding : 15px;
+            color : black;
+            background-color : purple;   
+        }
+
+        .dashboard-link-section {
+            text-align: center;
+            margin: 25px 0 30px 0;
+            padding: 0 15px;
+        }
+
+        .dashboard-link-title {
+            color: var(--dark);
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 15px;
+            opacity: 0.8;
+        }
+
+        .dashboard-link-button {
+            display: inline-block;
+            text-decoration: none;
+            background: linear-gradient(135deg, #7209b7 0%, #4361ee 100%);
+            color: white;
+            padding: 18px 40px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 18px;
+            box-shadow: 0 6px 20px rgba(114, 9, 183, 0.3);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .dashboard-link-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(114, 9, 183, 0.4);
+        }
+
+        .dashboard-link-button:active {
+            transform: translateY(-1px);
+        }
+
+        .dashboard-link-content {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .dashboard-link-content i {
+            font-size: 20px;
+        }
+
+        /* Pulsing animation effect */
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 6px 20px rgba(114, 9, 183, 0.3);
+            }
+            50% {
+                box-shadow: 0 6px 25px rgba(114, 9, 183, 0.5);
+            }
+            100% {
+                box-shadow: 0 6px 20px rgba(114, 9, 183, 0.3);
+            }
+        }
+
+        .dashboard-link-button {
+            animation: pulse 2s infinite;
+        }
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            ul {
+                height: 50px; /* Keep fixed height */
+                display: flex;
+                flex-wrap: nowrap; /* Prevent wrapping */
+                overflow-x: auto; /* Horizontal scroll if needed */
+                overflow-y: hidden;
+                white-space: nowrap;
+                -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+                padding: 5px 10px;
+                justify-content: flex-start; /* Align items to start */
+            }
+            
+            li {
+                float: none;
+                display: inline-flex;
+                flex-shrink: 0; /* Prevent items from shrinking */
+                margin: 0 2px;
+            }
+            
+            li a, .dropbtn {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 8px 12px;
+                height: 40px;
+                line-height: 1.2;
+                font-size: 12px;
+                white-space: nowrap;
+                border-radius: 6px;
+                margin: 0;
+            }
+            
+            .dropdown-content {
+                position: absolute;
+                top: 100%;
+                left: 0;
+                width: 100%;
+                background: white;
+                box-shadow: var(--card-shadow);
+                border-radius: 0 0 8px 8px;
+                display: none;
+            }
+            
+            .dropdown:hover .dropdown-content {
+                display: block;
+            }
+            
+            .dropdown-content a {
+                padding: 10px 15px;
+                text-align: center;
+                background: white;
+                color: var(--dark);
+            }
+
+            /* Rest of the dashboard mobile styles remain the same */
+            .container {
+                padding: 0 10px;
+            }
+            
+            .dashboard-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+                padding: 20px;
+                margin: 20px 0 15px 0;
+            }
+            
+            .dashboard-header h1 {
+                font-size: 22px;
+                text-align: center;
+                width: 100%;
+            }
+            
+            .period-selector {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .period-btn {
+                flex: 1;
+                padding: 10px;
+                font-size: 12px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+                margin-bottom: 15px;
+            }
+            
+            .stat-card {
+                padding: 15px;
+                gap: 10px;
+            }
+            
+            .stat-icon {
+                width: 40px;
+                height: 40px;
+                font-size: 18px;
+            }
+            
+            .stat-value {
+                font-size: 20px;
+            }
+            
+            .stat-label {
+                font-size: 12px;
+            }
+            
+            .content-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            
+            .section-card {
+                margin-bottom: 15px;
+            }
+            
+            .section-header {
+                padding: 15px;
+            }
+            
+            .section-header h3 {
+                font-size: 15px;
+            }
+            
+            .section-body {
+                max-height: 300px;
+            }
+            
+            .alert-item {
+                padding: 10px 15px;
+            }
+            
+            .alert-details h4 {
+                font-size: 12px;
+            }
+            
+            .alert-details p {
+                font-size: 11px;
+            }
+            
+            .analysis-cards {
+                gap: 10px;
+            }
+            
+            .analysis-card {
+                padding: 15px;
+                gap: 10px;
+            }
+            
+            .analysis-icon {
+                width: 40px;
+                height: 40px;
+                font-size: 18px;
+            }
+            
+            .analysis-title {
+                font-size: 14px;
+            }
+            
+            .analysis-subtitle {
+                font-size: 11px;
+            }
+            
+            .no-data, .loading {
+                padding: 20px 15px;
+                font-size: 13px;
+            }
+            
+            .dashboard-link-section {
+                margin: 20px 0 25px 0;
+                padding: 0 10px;
+            }
+            
+            .dashboard-link-title {
+                font-size: 14px;
+                margin-bottom: 12px;
+            }
+            
+            .dashboard-link-button {
+                width: 90%;
+                max-width: 300px;
+                padding: 16px 30px;
+                font-size: 16px;
+                border-radius: 45px;
+                display: flex;
+                justify-content: center;
+                animation: pulse 2s infinite;
+            }
+            
+            .dashboard-link-content {
+                gap: 10px;
+            }
+            
+            .dashboard-link-content i {
+                font-size: 18px;
+            }
+            
+            /* Disable hover effects on mobile */
+            .dashboard-link-button:hover {
+                transform: none;
+                box-shadow: 0 6px 20px rgba(114, 9, 183, 0.3);
+            }
+            
+            /* Simpler pulse animation for mobile */
+            @keyframes pulse {
+                0% {
+                    box-shadow: 0 4px 15px rgba(114, 9, 183, 0.3);
+                }
+                50% {
+                    box-shadow: 0 4px 20px rgba(114, 9, 183, 0.5);
+                }
+                100% {
+                    box-shadow: 0 4px 15px rgba(114, 9, 183, 0.3);
+                }
+            }
+    }
+
+    </style>
+</head>
+<body>
+    <!-- Consistent Navigation Bar - Smaller version -->
+    <ul>
+        <li><a href="/"><i class="fas fa-home"></i> Home</a></li>
+        <li class="dropdown">
+            <a href="/dashboard" class="dropbtn"><i class="fas fa-chart-line"></i> Dashboard</a>
+            <div class="dropdown-content">
+                <a href="/dashboard"><i class="fas fa-chart-bar"></i> Dashboard Results</a>
+                <a href="/Top-Moving-Products"><i class="fas fa-arrow-up"></i> Top Moving Products</a>
+                <a href="/Slow-Moving-Products"><i class="fas fa-arrow-down"></i> Slow Moving Products</a>
+                <a href="/Non-Moving-Products"><i class="fas fa-ban"></i> Non Moving Products</a>
+            </div>
+        </li>
+        <li><a href="/configurations"><i class="fas fa-cogs"></i> Configurations</a></li>
+        <li><a href="/dataimport"><i class="fas fa-file-import"></i>Data-import</a></li>
+        <li><a href="/inventory"><i class="fas fa-warehouse"></i> Inventory</a></li>
+        <li><a href="/customers"><i class="fas fa-users"></i> Customers</a></li>
+        <li><a href="/orders"><i class="fas fa-shopping-cart"></i> Orders</a></li>
+        <li><a href="/admin-dashboard"><i class="fas fa-chart-line"></i> Admin-Dashboard</a></li>
+        <li><a href="/user-registration"><i class="fas fa-users"></i> Users</a></li>
+        <li><a href="/admin-registration"><i class="fas fa-users"></i> Admin</a></li>
+    </ul>
+
+    <div class="container">
+        <!-- Dashboard Header -->
+        <div class="dashboard-header">
+            <h1><i class="fas fa-chart-line"></i> Business Dashboard</h1>
+            <div class="period-selector">
+                <button class="period-btn active" data-period="today">Today</button>
+                <button class="period-btn" data-period="week">Week</button>
+                <button class="period-btn" data-period="month">Month</button>
+            </div>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-card orders">
+                <div class="stat-icon">
+                    <i class="fas fa-shopping-cart"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-value" id="ordersToday">0</div>
+                    <div class="stat-label">Orders</div>
+                    <div class="stat-trend trend-up">
+                        <i class="fas fa-arrow-up"></i>
+                        <span>Live</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-card revenue">
+                <div class="stat-icon">
+                    <i class="fas fa-rupee-sign"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-value" id="revenueToday">₹0</div>
+                    <div class="stat-label">Revenue</div>
+                    <div class="stat-trend trend-up">
+                        <i class="fas fa-arrow-up"></i>
+                        <span>Real-time</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-card customers">
+                <div class="stat-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-value" id="totalCustomers">0</div>
+                    <div class="stat-label">Total Customers</div>
+                    <div class="stat-trend">
+                        <i class="fas fa-chart-line"></i>
+                        <span>All Time</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stat-card inventory">
+                <div class="stat-icon">
+                    <i class="fas fa-warehouse"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-value" id="inventoryValue">₹0</div>
+                    <div class="stat-label">Inventory Value</div>
+                    <div class="stat-trend">
+                        <i class="fas fa-boxes"></i>
+                        <span>Current Stock</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="dashboard-link-section">
+            <h3 class="dashboard-link-title">Click here for</h3>
+            <a href="/user-dashboard" class="dashboard-link-button">
+                <div class="dashboard-link-content">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Ordered Results</span>
+                </div>
+            </a>
+        </div>
+
+        <!-- Main Content Grid -->
+        <div class="content-grid">
+            <!-- Left Column - Inventory Alerts -->
+            <div class="section-card">
+                <div class="section-header">
+                    <h3><i class="fas fa-exclamation-triangle"></i> Inventory Alerts</h3>
+                </div>
+                <div class="section-body" id="inventoryAlerts">
+                    <div class="loading">
+                        <i class="fas fa-spinner"></i> Loading alerts...
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column - Product Analysis -->
+            <div class="analysis-cards">
+                <a href="/Top-Moving-Products" class="analysis-card top-moving">
+                    <div class="analysis-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="analysis-content">
+                        <div class="analysis-title">Top Moving Products</div>
+                        <div class="analysis-subtitle">Best performing products analysis</div>
+                    </div>
+                    <i class="fas fa-chevron-right"></i>
+                </a>
+                
+                <a href="/Slow-Moving-Products" class="analysis-card slow-moving">
+                    <div class="analysis-icon">
+                        <i class="fas fa-tachometer-alt"></i>
+                    </div>
+                    <div class="analysis-content">
+                        <div class="analysis-title">Slow Moving Products</div>
+                        <div class="analysis-subtitle">Low sales performance analysis</div>
+                    </div>
+                    <i class="fas fa-chevron-right"></i>
+                </a>
+                
+                <a href="/Non-Moving-Products" class="analysis-card non-moving">
+                    <div class="analysis-icon">
+                        <i class="fas fa-ban"></i>
+                    </div>
+                    <div class="analysis-content">
+                        <div class="analysis-title">Non Moving Products</div>
+                        <div class="analysis-subtitle">Dead stock identification</div>
+                    </div>
+                    <i class="fas fa-chevron-right"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+    <script>
+        let currentPeriod = 'today';
+
+        // Enhanced State management with sessionStorage for session persistence
+        const dashboardState = {
+            currentPeriod: 'today',
+            expandedAlerts: new Set(),
+            lastRefresh: null,
+            serverStartTime: null
+        };
+
+        // Load state from sessionStorage
+        function loadDashboardState() {
+            try {
+                const saved = sessionStorage.getItem('dashboardState');
+                if (saved) {
+                    const parsed = JSON.parse(saved);
+                    dashboardState.currentPeriod = parsed.currentPeriod || 'today';
+                    dashboardState.expandedAlerts = new Set(parsed.expandedAlerts || []);
+                    dashboardState.lastRefresh = parsed.lastRefresh;
+                    
+                    // Restore period selector
+                    document.querySelectorAll('.period-btn').forEach(btn => {
+                        btn.classList.remove('active');
+                        if (btn.dataset.period === dashboardState.currentPeriod) {
+                            btn.classList.add('active');
+                        }
+                    });
+                    currentPeriod = dashboardState.currentPeriod;
+                }
+            } catch (e) {
+                console.log('No saved dashboard state found');
+            }
+        }
+
+        // Save state to sessionStorage
+        function saveDashboardState() {
+            try {
+                const toSave = {
+                    currentPeriod: dashboardState.currentPeriod,
+                    expandedAlerts: Array.from(dashboardState.expandedAlerts),
+                    lastRefresh: dashboardState.lastRefresh,
+                    serverStartTime: dashboardState.serverStartTime
+                };
+                sessionStorage.setItem('dashboardState', JSON.stringify(toSave));
+            } catch (e) {
+                console.log('Could not save dashboard state');
+            }
+        }
+
+        // Check if server was restarted
+        async function checkServerRestart() {
+            try {
+                const response = await fetch('/api/dashboard/summary');
+                const data = await response.json();
+                
+                // If this is the first time we're checking, store the server time
+                if (!dashboardState.serverStartTime) {
+                    dashboardState.serverStartTime = Date.now();
+                    saveDashboardState();
+                    return false;
+                }
+                
+                // If we get a successful response but our stored time is old, server was restarted
+                if (data.success) {
+                    const timeSinceLastCheck = Date.now() - dashboardState.serverStartTime;
+                    if (timeSinceLastCheck > 30000) { // 30 seconds
+                        dashboardState.serverStartTime = Date.now();
+                        // Clear expanded state on server restart
+                        dashboardState.expandedAlerts.clear();
+                        saveDashboardState();
+                        return true;
+                    }
+                }
+                return false;
+            } catch (error) {
+                // If we can't reach the server, it might be restarting
+                return true;
+            }
+        }
+
+        // Toggle item expansion state
+        function toggleItemExpansion(itemId) {
+            if (dashboardState.expandedAlerts.has(itemId)) {
+                dashboardState.expandedAlerts.delete(itemId);
+            } else {
+                dashboardState.expandedAlerts.add(itemId);
+            }
+            saveDashboardState();
+        }
+
+        // Check if item is expanded
+        function isItemExpanded(itemId) {
+            return dashboardState.expandedAlerts.has(itemId);
+        }
+
+        // Format currency
+        function formatCurrency(amount) {
+            return '₹' + Number(amount).toLocaleString('en-IN', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+        }
+
+        // Format number with commas
+        function formatNumber(num) {
+            return Number(num).toLocaleString('en-IN');
+        }
+
+        // Load dashboard data
+        async function loadDashboardData() {
+            // Check if server was restarted
+            const serverRestarted = await checkServerRestart();
+            if (serverRestarted) {
+                console.log('Server was restarted - clearing expanded state');
+            }
+
+            await loadSummary();
+            await loadInventoryAlerts();
+            
+            // Update last refresh time
+            dashboardState.lastRefresh = new Date().toISOString();
+            saveDashboardState();
+        }
+
+        // Load summary statistics with period filter
+        async function loadSummary() {
+            try {
+                const response = await fetch(`/api/dashboard/summary?period=${currentPeriod}`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    const summary = data.summary;
+                    
+                    // Update main stats
+                    document.getElementById('ordersToday').textContent = formatNumber(summary.orders_count);
+                    document.getElementById('revenueToday').textContent = formatCurrency(summary.revenue);
+                    document.getElementById('totalCustomers').textContent = formatNumber(summary.total_customers);
+                    document.getElementById('inventoryValue').textContent = formatCurrency(summary.inventory_value);
+                    
+                } else {
+                    showError('Failed to load summary data');
+                }
+            } catch (error) {
+                console.error('Error loading summary:', error);
+                showError('Error loading summary data');
+            }
+        }
+
+        // Load inventory alerts
+        async function loadInventoryAlerts() {
+            try {
+                const response = await fetch(`/api/dashboard/inventory-alerts`);
+                const data = await response.json();
+                
+                const container = document.getElementById('inventoryAlerts');
+                
+                if (data.success) {
+                    const alerts = data.alerts;
+                    const itemmasterColumns = data.alerts.itemmaster_columns || [];
+                    
+                    if (alerts.total_alerts === 0) {
+                        container.innerHTML = '<div class="no-data">No inventory alerts 🎉</div>';
+                        return;
+                    }
+                    
+                    let alertsHTML = '';
+                    
+                    // Low stock alerts
+                    alerts.low_stock.forEach(alert => {
+                        const isExpanded = isItemExpanded(alert.barcode);
+                        alertsHTML += `
+                            <div class="alert-item alert-low-stock ${isExpanded ? 'active' : ''}" data-barcode="${alert.barcode}">
+                                <div class="alert-info">
+                                    <div class="alert-icon">
+                                        <i class="fas fa-exclamation"></i>
+                                    </div>
+                                    <div class="alert-details">
+                                        <h4>${alert.barcode}</h4>
+                                        <p>Low Stock: ${alert.quantity} units remaining</p>
+                                        ${renderItemMasterDetails(alert, itemmasterColumns)}
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    // Out of stock alerts
+                    alerts.out_of_stock.forEach(alert => {
+                        const isExpanded = isItemExpanded(alert.barcode);
+                        alertsHTML += `
+                            <div class="alert-item alert-out-of-stock ${isExpanded ? 'active' : ''}" data-barcode="${alert.barcode}">
+                                <div class="alert-info">
+                                    <div class="alert-icon">
+                                        <i class="fas fa-times"></i>
+                                    </div>
+                                    <div class="alert-details">
+                                        <h4>${alert.barcode}</h4>
+                                        <p>Out of Stock - Urgent restock needed</p>
+                                        ${renderItemMasterDetails(alert, itemmasterColumns)}
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    container.innerHTML = alertsHTML;
+                } else {
+                    container.innerHTML = '<div class="no-data">No inventory Alerts</div>';
+                }
+            } catch (error) {
+                console.error('Error loading alerts:', error);
+                document.getElementById('inventoryAlerts').innerHTML = '<div class="no-data">Error loading alerts</div>';
+            }
+        }
+
+        function renderItemMasterDetails(product, itemmasterColumns) {
+            if (!itemmasterColumns || itemmasterColumns.length === 0) {
+                return '';
+            }
+            
+            let detailsHTML = '<div class="itemmaster-details">';
+            
+            itemmasterColumns.forEach(column => {
+                if (product[column] && product[column] !== 'NULL' && product[column] !== '') {
+                    detailsHTML += `<div><strong>${column}:</strong> ${product[column]}</div>`;
+                }
+            });
+            
+            detailsHTML += '</div>';
+            return detailsHTML;
+        }
+
+        // Show error message
+        function showError(message) {
+            alert('❌ ' + message);
+        }
+
+        // Update period selector event listeners
+        document.querySelectorAll('.period-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                currentPeriod = this.dataset.period;
+                dashboardState.currentPeriod = currentPeriod;
+                saveDashboardState();
+                
+                loadDashboardData();
+            });
+        });
+
+        // Click to toggle functionality for alerts
+        document.addEventListener('click', function(e){
+            const alertItem = e.target.closest && e.target.closest('.alert-item');
+            if (alertItem && alertItem.querySelector('.itemmaster-details')) {
+                const barcode = alertItem.getAttribute('data-barcode');
+                if (barcode) {
+                    toggleItemExpansion(barcode);
+                    alertItem.classList.toggle('active');
+                }
+                return;
+            }
+        });
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            loadDashboardState();
+            loadDashboardData();
+            
+            // Auto-refresh every 30 seconds
+            setInterval(loadDashboardData, 30000);
+        });
+
+        // Save state before page unload
+        window.addEventListener('beforeunload', function() {
+            saveDashboardState();
+        });
+    </script>
+    <!-- Add this line to EVERY HTML page -->
+<script src="{{ url_for('static', filename='js/navigation.js') }}"></script>
+</body>
+</html>

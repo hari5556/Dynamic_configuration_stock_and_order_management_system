@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Registration</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3a56d4;
+            --secondary: #7209b7;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --light-gray: #e9ecef;
+            --border: #dee2e6;
+            --card-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: "Poppins", "Inter", "SF Pro Display", "Segoe UI", "Manrope", sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e7ec 100%);
+            color: var(--dark);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+        
+        /* SMALLER Navigation Styles - Consistent with home page but smaller */
+        ul {
+            list-style: none;
+            background: var(--primary);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            padding: 2px 10px;
+            min-height: 30px; /* was 50px */
+            height: auto;
+            line-height: 1;
+        }
+
+        li {
+            display: inline-flex;
+            flex-shrink: 0;
+        }
+        
+        li a, .dropbtn {
+            display: flex;
+            align-items: center;
+            color: white;
+            text-decoration: none;
+            padding: 6px 10px; /* was 10px 14px */
+            font-size: 13px;   /* was 14px */
+            font-weight: 500;  /* bold style restored */
+            white-space: nowrap;
+            transition: all 0.3s ease;
+            border-radius: 6px;
+            height: auto;
+            line-height: 1.2;
+        }
+        
+        li a:hover, .dropdown:hover .dropbtn {
+            background-color: var(--dark);
+        }
+        
+         li.dropdown {
+            position: relative;
+        }
+        
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: white;
+            min-width: 180px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+            z-index: 1;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .dropdown-content a {
+            color: var(--dark);
+            padding: 10px 14px;
+            text-decoration: none;
+            display: block;
+            font-size: 13px;
+            transition: all 0.3s ease;
+        }
+        
+        .dropdown-content a:hover {
+            background-color: var(--light-gray);
+            color: var(--primary);
+        }
+        
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
+        /* Container Styles */
+        .container {
+            max-width: 500px;
+            margin: 30px auto;
+            padding: 0 20px;
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: var(--card-shadow);
+        }
+        
+        h2 {
+            text-align: center;
+            color: var(--primary);
+            margin-bottom: 30px;
+            font-size: 28px;
+            font-weight: 600;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        label i {
+            color: var(--primary);
+            font-size: 16px;
+        }
+        
+        input[type="text"],
+        input[type="email"],
+        input[type="password"] {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid var(--light-gray);
+            border-radius: 10px;
+            font-size: 16px;
+            background-color: var(--light);
+            transition: all 0.3s ease;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        }
+        
+        .required::after {
+            content: " *";
+            color: #ef476f;
+        }
+        
+        button {
+            background: var(--primary);
+            color: white;
+            padding: 16px 32px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            width: 100%;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        button:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(67, 97, 238, 0.3);
+        }
+
+        .error-message {
+            color: #ef476f;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+
+        .success-message {
+            color: #06d6a0;
+            font-size: 14px;
+            margin-top: 10px;
+            text-align: center;
+            padding: 10px;
+            background: #f8fff9;
+            border-radius: 8px;
+            border: 1px solid #06d6a0;
+            display: none;
+        }
+
+        .password-strength {
+            margin-top: 5px;
+            font-size: 12px;
+        }
+
+        .strength-weak { color: #ef476f; }
+        .strength-medium { color: #ffd166; }
+        .strength-strong { color: #06d6a0; }
+
+        /* Mobile Responsive Styles */
+        @media (max-width: 768px) {
+            /* Mobile Navigation - Single Line Horizontal Scroll */
+            ul {
+                height: 50px;
+                display: flex;
+                flex-wrap: nowrap;
+                overflow-x: auto;
+                overflow-y: hidden;
+                white-space: nowrap;
+                -webkit-overflow-scrolling: touch;
+                padding: 5px 10px;
+                justify-content: flex-start;
+            }
+            
+            li {
+                float: none;
+                display: inline-flex;
+                flex-shrink: 0;
+                margin: 0 2px;
+            }
+            
+            li a, .dropbtn {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 8px 12px;
+                height: 40px;
+                line-height: 1.2;
+                font-size: 12px;
+                white-space: nowrap;
+                border-radius: 6px;
+                margin: 0;
+            }
+            
+            .dropdown-content {
+                position: absolute;
+                top: 100%;
+                left: 0;
+                width: 100%;
+                background: white;
+                box-shadow: var(--card-shadow);
+                border-radius: 0 0 8px 8px;
+                display: none;
+            }
+            
+            .dropdown:hover .dropdown-content {
+                display: block;
+            }
+            
+            .dropdown-content a {
+                padding: 10px 15px;
+                text-align: center;
+                background: white;
+                color: var(--dark);
+            }
+
+            /* Form Mobile Styles */
+            .container {
+                margin: 20px auto;
+                padding: 15px;
+            }
+            
+            h2 {
+                font-size: 24px;
+                margin-bottom: 25px;
+            }
+            
+            .form-group {
+                margin-bottom: 15px;
+            }
+            
+            label {
+                font-size: 14px;
+                margin-bottom: 6px;
+            }
+            
+            input[type="text"],
+            input[type="email"],
+            input[type="password"] {
+                padding: 12px 14px;
+                font-size: 16px;
+                border-width: 1px;
+            }
+            
+            button {
+                padding: 14px 24px;
+                font-size: 16px;
+                margin-top: 15px;
+            }
+            
+            .error-message {
+                font-size: 11px;
+            }
+            
+            input, button {
+                min-height: 44px;
+            }
+
+            .success-message {
+                font-size: 13px;
+                padding: 8px;
+            }
+
+            .password-strength {
+                font-size: 11px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                margin: 10px auto;
+                padding: 10px;
+            }
+            
+            h2 {
+                font-size: 22px;
+                margin-bottom: 20px;
+            }
+            
+            .form-group {
+                margin-bottom: 12px;
+            }
+            
+            input[type="text"],
+            input[type="email"],
+            input[type="password"] {
+                padding: 10px 12px;
+                font-size: 15px;
+            }
+            
+            button {
+                padding: 12px 20px;
+                font-size: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Consistent Navigation Bar - Smaller version -->
+    <ul>
+        <li><a href="/"><i class="fas fa-home"></i> Home</a></li>
+        <li class="dropdown">
+            <a href="/dashboard" class="dropbtn"><i class="fas fa-chart-line"></i> Dashboard</a>
+            <div class="dropdown-content">
+                <a href="/dashboard"><i class="fas fa-chart-bar"></i> Dashboard Results</a>
+                <a href="/Top-Moving-Products"><i class="fas fa-arrow-up"></i> Top Moving Products</a>
+                <a href="/Slow-Moving-Products"><i class="fas fa-arrow-down"></i> Slow Moving Products</a>
+                <a href="/Non-Moving-Products"><i class="fas fa-ban"></i> Non Moving Products</a>
+            </div>
+        </li>
+        <li><a href="/configurations"><i class="fas fa-cogs"></i> Configurations</a></li>
+        <li><a href="/dataimport"><i class=" fas fa-file-import"></i> Data-Import</a></li>
+        <li><a href="/inventory"><i class="fas fa-warehouse"></i> Inventory</a></li>
+        <li><a href="/customers"><i class="fas fa-users"></i> Customers</a></li>
+        <li><a href="/orders"><i class="fas fa-shopping-cart"></i> Orders</a></li>
+        <li><a href="/admin-dashboard"><i class="fas fa-chart-bar"></i> Admin-Dashboard</a></li>
+        <li><a href="/user-registration"><i class="fas fa-users"></i> User</a></li>
+        <li><a href="/admin-registration"><i class="fas fa-users"></i> Admin</a></li>
+    </ul>
+
+    <div class="container">
+        <h2><i class="fas fa-user-plus"></i> User Registration</h2>
+        
+        <!-- Success Message -->
+        <div id="successMessage" class="success-message"></div>
+        
+        <form id="userForm" autocomplete="off">
+            <div class="form-group">
+                <label class="required"><i class="fas fa-user"></i> User Name</label>
+                <input type="text" placeholder="Enter user name" name="user_name" required>
+            </div>
+
+            <div class="form-group">
+                <label class="required"><i class="fas fa-envelope"></i> User Email</label>
+                <input type="email" placeholder="Enter user email" name="user_email" required>
+            </div>
+
+            <div class="form-group">
+                <label class="required"><i class="fas fa-lock"></i> Password</label>
+                <input type="password" placeholder="Enter password (min 6 characters)" name="user_password" required minlength="6">
+                <div id="passwordStrength" class="password-strength"></div>
+            </div>
+
+            <button type="submit"><i class="fas fa-user-plus"></i> Register User</button>
+        </form>
+    </div>
+
+    <script>
+        // Real-time password strength indicator
+        document.querySelector('input[name="user_password"]').addEventListener('input', function(e) {
+            const password = e.target.value;
+            const strengthDiv = document.getElementById('passwordStrength');
+            
+            if (password.length === 0) {
+                strengthDiv.textContent = '';
+                strengthDiv.className = 'password-strength';
+                return;
+            }
+            
+            let strength = 'weak';
+            let message = 'Weak password';
+            
+            if (password.length >= 8 && /[A-Z]/.test(password) && /[0-9]/.test(password)) {
+                strength = 'strong';
+                message = 'Strong password';
+            } else if (password.length >= 6) {
+                strength = 'medium';
+                message = 'Medium strength password';
+            }
+            
+            strengthDiv.textContent = message;
+            strengthDiv.className = `password-strength strength-${strength}`;
+        });
+
+        document.getElementById('userForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            clearErrors();
+            hideSuccess();
+            
+            let isValid = true;
+
+            // User Name validation
+            const userName = document.querySelector('input[name="user_name"]');
+            if (!validateRequired(userName) || !validateLength(userName, 2, 50)) {
+                showError(userName, 'Name must be 2-50 characters');
+                isValid = false;
+            }
+
+            // Email validation
+            const userEmail = document.querySelector('input[name="user_email"]');
+            if (!validateRequired(userEmail) || !validateEmail(userEmail)) {
+                showError(userEmail, 'Enter a valid email address');
+                isValid = false;
+            }
+
+            // Password validation
+            const userPassword = document.querySelector('input[name="user_password"]');
+            if (!validateRequired(userPassword) || !validatePassword(userPassword)) {
+                showError(userPassword, 'Password must be at least 6 characters long');
+                isValid = false;
+            }
+
+            if (isValid) {
+                submitUserForm();
+            }
+        });
+
+        // Validation Functions
+        function validateRequired(field) {
+            return field.value.trim() !== '';
+        }
+
+        function validateLength(field, min, max) {
+            const value = field.value.trim();
+            return value.length >= min && value.length <= max;
+        }
+
+        function validateEmail(field) {
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(field.value);
+        }
+
+        function validatePassword(field) {
+            const value = field.value.trim();
+            return value.length >= 6;
+        }
+
+        // Error Handling
+        function showError(field, message) {
+            field.style.borderColor = '#ef476f';
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error-message';
+            errorDiv.textContent = message;
+            field.parentNode.appendChild(errorDiv);
+        }
+
+        function clearErrors() {
+            const inputs = document.querySelectorAll('input');
+            inputs.forEach(input => {
+                input.style.borderColor = '#e9ecef';
+            });
+            
+            const errors = document.querySelectorAll('.error-message');
+            errors.forEach(error => error.remove());
+        }
+
+        function showSuccess(message) {
+            const successDiv = document.getElementById('successMessage');
+            successDiv.textContent = message;
+            successDiv.style.display = 'block';
+            
+            // Scroll to success message
+            successDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        function hideSuccess() {
+            const successDiv = document.getElementById('successMessage');
+            successDiv.style.display = 'none';
+        }
+
+        function submitUserForm() {
+            // Get form data
+            const formData = {
+                user_name: document.querySelector('input[name="user_name"]').value,
+                user_email: document.querySelector('input[name="user_email"]').value,
+                user_password: document.querySelector('input[name="user_password"]').value
+            };
+
+            // Show loading state
+            const submitBtn = document.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Registering...';
+            submitBtn.disabled = true;
+
+            // Send to your API endpoint
+            fetch('/api/register-user', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showSuccess('User registered successfully!');
+                    document.getElementById('userForm').reset();
+                    document.getElementById('passwordStrength').textContent = '';
+                    
+                    // Scroll to top to show success message
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                alert('Network error: ' + error);
+            })
+            .finally(() => {
+                // Restore button state
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            });
+        }
+
+        // Enhanced mobile experience
+        document.addEventListener('DOMContentLoaded', function() {
+            if ('ontouchstart' in window) {
+                document.querySelectorAll('input').forEach(input => {
+                    input.style.fontSize = '16px'; // Prevent zoom on iOS
+                });
+            }
+        });
+    </script>
+    <script src="{{ url_for('static', filename='js/navigation.js') }}"></script>
+</body>
+</html>

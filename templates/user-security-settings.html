@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Security Settings - Order Management System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* COPY THE EXACT SAME STYLES FROM security-settings.html */
+        /* Use the same CSS as the admin security settings page */
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3a56d4;
+            --success: #06d6a0;
+            --danger: #ef476f;
+            --warning: #ffd166;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --light-gray: #e9ecef;
+            --card-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: "Poppins", sans-serif;
+            background: #f5f7fb;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: white;
+            padding: 25px 30px;
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: between;
+            align-items: center;
+        }
+
+        .header h1 {
+            background: linear-gradient(135deg, var(--primary) 0%, #7209b7 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .back-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .back-btn:hover {
+            background: var(--primary-dark);
+        }
+
+        .security-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 25px;
+        }
+
+        .security-card {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
+            border-left: 4px solid var(--primary);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            gap: 15px;
+        }
+
+        .card-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--primary) 0%, #7209b7 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+        }
+
+        .card-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .card-description {
+            color: var(--gray);
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 20px;
+        }
+
+        .status-enabled {
+            background: rgba(6, 214, 160, 0.1);
+            color: #06d6a0;
+            border: 1px solid rgba(6, 214, 160, 0.3);
+        }
+
+        .status-disabled {
+            background: rgba(239, 71, 111, 0.1);
+            color: #ef476f;
+            border: 1px solid rgba(239, 71, 111, 0.3);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #d93654;
+        }
+
+        .btn:disabled {
+            background: var(--light-gray);
+            color: var(--gray);
+            cursor: not-allowed;
+        }
+
+        .message {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-weight: 500;
+            display: none;
+        }
+
+        .message.success {
+            background: rgba(6, 214, 160, 0.1);
+            color: #06d6a0;
+            border: 1px solid rgba(6, 214, 160, 0.3);
+        }
+
+        .message.error {
+            background: rgba(239, 71, 111, 0.1);
+            color: #ef476f;
+            border: 1px solid rgba(239, 71, 111, 0.3);
+        }
+
+        .info-box {
+            background: rgba(67, 97, 238, 0.05);
+            border: 1px solid rgba(67, 97, 238, 0.2);
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .info-box h4 {
+            color: var(--primary);
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+
+        .info-box ul {
+            color: var(--gray);
+            padding-left: 20px;
+            line-height: 1.8;
+        }
+
+        .info-box li {
+            margin-bottom: 8px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .header {
+                padding: 20px;
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+            
+            .security-card {
+                padding: 20px;
+            }
+            
+            .btn-group {
+                flex-direction: column;
+            }
+            
+            .btn {
+                justify-content: center;
+            }
+        }
+        .back-btn{
+            margin-left : 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-shield-alt"></i> Security Settings</h1>
+            <a href="/" class="back-btn">
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </a>
+        </div>
+
+        <div class="security-grid">
+            <div class="security-card">
+                <div class="card-header">
+                    <div class="card-icon">
+                        <i class="fas fa-lock"></i>
+                    </div>
+                    <div>
+                        <div class="card-title">Multi-Factor Authentication (MFA)</div>
+                        <div class="card-description">
+                            Add an extra layer of security to your account. When enabled, you'll need to enter a verification code from your email in addition to your password.
+                        </div>
+                    </div>
+                </div>
+
+                <div id="mfaStatus" class="status-badge status-disabled">
+                    <i class="fas fa-circle"></i>
+                    <span>Loading status...</span>
+                </div>
+
+                <div id="messageContainer"></div>
+
+                <div class="btn-group">
+                    <button id="enableMfaBtn" class="btn btn-primary" onclick="enableUserMFA()">
+                        <i class="fas fa-shield-alt"></i> Enable MFA
+                    </button>
+                    <button id="disableMfaBtn" class="btn btn-danger" onclick="disableUserMFA()" style="display: none;">
+                        <i class="fas fa-shield-alt"></i> Disable MFA
+                    </button>
+                </div>
+
+                <div class="info-box">
+                    <h4><i class="fas fa-info-circle"></i> How MFA Works:</h4>
+                    <ul>
+                        <li>After enabling MFA, you'll receive a 6-digit verification code via email on each login</li>
+                        <li>You'll need to enter this code in addition to your password</li>
+                        <li>Codes expire after 10 minutes for security</li>
+                        <li>This prevents unauthorized access even if your password is compromised</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Load MFA status on page load
+        async function loadMFAStatus() {
+            try {
+                const response = await fetch('/api/user/mfa-status');
+                const data = await response.json();
+                
+                if (data.success) {
+                    updateMFAStatus(data.mfa_enabled);
+                } else {
+                    showMessage('Failed to load MFA status', 'error');
+                }
+            } catch (error) {
+                showMessage('Network error loading MFA status', 'error');
+            }
+        }
+
+        // Update MFA status display
+        function updateMFAStatus(isEnabled) {
+            const statusElement = document.getElementById('mfaStatus');
+            const enableBtn = document.getElementById('enableMfaBtn');
+            const disableBtn = document.getElementById('disableMfaBtn');
+            
+            if (isEnabled) {
+                statusElement.innerHTML = '<i class="fas fa-circle"></i> MFA Enabled';
+                statusElement.className = 'status-badge status-enabled';
+                enableBtn.style.display = 'none';
+                disableBtn.style.display = 'inline-flex';
+            } else {
+                statusElement.innerHTML = '<i class="fas fa-circle"></i> MFA Disabled';
+                statusElement.className = 'status-badge status-disabled';
+                enableBtn.style.display = 'inline-flex';
+                disableBtn.style.display = 'none';
+            }
+        }
+
+        // Enable MFA
+        async function enableUserMFA() {
+            if (!confirm('Enable Multi-Factor Authentication?\n\nYou will need to verify via email on your next login.')) {
+                return;
+            }
+
+            const enableBtn = document.getElementById('enableMfaBtn');
+            enableBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enabling...';
+            enableBtn.disabled = true;
+
+            try {
+                const response = await fetch('/api/user/enable-mfa', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showMessage('MFA enabled successfully! You will need to verify via email on your next login.', 'success');
+                    updateMFAStatus(true);
+                } else {
+                    showMessage(data.message || 'Failed to enable MFA', 'error');
+                }
+            } catch (error) {
+                showMessage('Network error enabling MFA', 'error');
+            } finally {
+                enableBtn.innerHTML = '<i class="fas fa-shield-alt"></i> Enable MFA';
+                enableBtn.disabled = false;
+            }
+        }
+
+        // Disable MFA
+        async function disableUserMFA() {
+            if (!confirm('Disable Multi-Factor Authentication?\n\nYour account will be less secure.')) {
+                return;
+            }
+
+            const disableBtn = document.getElementById('disableMfaBtn');
+            disableBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Disabling...';
+            disableBtn.disabled = true;
+
+            try {
+                const response = await fetch('/api/user/disable-mfa', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showMessage('MFA disabled successfully.', 'success');
+                    updateMFAStatus(false);
+                } else {
+                    showMessage(data.message || 'Failed to disable MFA', 'error');
+                }
+            } catch (error) {
+                showMessage('Network error disabling MFA', 'error');
+            } finally {
+                disableBtn.innerHTML = '<i class="fas fa-shield-alt"></i> Disable MFA';
+                disableBtn.disabled = false;
+            }
+        }
+
+        // Show message
+        function showMessage(message, type) {
+            const messageContainer = document.getElementById('messageContainer');
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}`;
+            messageDiv.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
+                ${message}
+            `;
+            messageDiv.style.display = 'block';
+            
+            messageContainer.appendChild(messageDiv);
+            
+            // Auto-remove after 5 seconds
+            setTimeout(() => {
+                if (messageDiv.parentNode) {
+                    messageDiv.remove();
+                }
+            }, 5000);
+        }
+
+        // Load status when page loads
+        document.addEventListener('DOMContentLoaded', loadMFAStatus);
+    </script>
+</body>
+</html>

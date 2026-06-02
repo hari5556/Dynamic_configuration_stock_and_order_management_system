@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Login - Order Management System PCS</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3a56d4;
+            --secondary: #7209b7;
+            --success: #06d6a0;
+            --danger: #ef476f;
+            --warning: #ffd166;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --light-gray: #e9ecef;
+            --card-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: "Poppins", "Inter", "SF Pro Display", "Segoe UI", "Manrope", sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: var(--dark);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .login-container {
+            background: white;
+            padding: 30px 25px;
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
+            max-width: 380px;
+            width: 100%;
+        }
+
+        .login-icon {
+            font-size: 32px;
+            text-align: center;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        h1 {
+            font-size: 22px;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .info-text {
+            color: var(--gray);
+            font-size: 13px;
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: 400;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            color: var(--dark);
+            font-weight: 500;
+            font-size: 13px;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--light-gray);
+            border-radius: 6px;
+            font-size: 13px;
+            font-family: "Poppins", sans-serif;
+            transition: var(--transition);
+            background: white;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(67, 97, 238, 0.1);
+        }
+
+        input::placeholder {
+            color: #adb5bd;
+            font-size: 13px;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 12px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: "Poppins", sans-serif;
+            margin-top: 5px;
+        }
+
+        .login-btn:hover {
+            background: var(--primary-dark);
+        }
+
+        .back-btn {
+            width: 100%;
+            padding: 10px;
+            background: var(--gray);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            font-family: "Poppins", sans-serif;
+            margin-top: 8px;
+        }
+
+        .back-btn:hover {
+            background: #5a6268;
+        }
+
+        .error-message {
+            color: var(--danger);
+            text-align: center;
+            margin-top: 12px;
+            font-size: 13px;
+            font-weight: 500;
+            display: none;
+            padding: 8px;
+            background: rgba(239, 71, 111, 0.1);
+            border-radius: 4px;
+            border-left: 3px solid var(--danger);
+        }
+
+        .login-footer {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid var(--light-gray);
+            color: var(--gray);
+            font-size: 11px;
+            text-align: center;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 480px) {
+            .login-container {
+                padding: 25px 20px;
+            }
+            
+            h1 {
+                font-size: 20px;
+            }
+            
+            .login-icon {
+                font-size: 28px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-icon">
+            <i class="fas fa-user-circle"></i>
+        </div>
+        
+        <h1>User Login</h1>
+        <p class="info-text">Use your registered email address to login</p>
+        
+        <form id="userLoginForm">
+            <div class="form-group">
+                <label for="email">Email Address:</label>
+                <input type="email" id="email" name="email" required placeholder="Enter your email">
+            </div>
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" required placeholder="Enter your password">
+            </div>
+            <button type="submit" class="login-btn">
+                <i class="fas fa-sign-in-alt"></i> Login
+            </button>
+            <button type="button" class="back-btn" onclick="goBack()">
+                <i class="fas fa-arrow-left"></i> Back to Gateway
+            </button>
+        </form>
+        
+        <div id="errorMessage" class="error-message"></div>
+        
+        <div class="login-footer">
+            <p>&copy; 2025 Order Management System PCS</p>
+        </div>
+    </div>
+
+    <script>
+    let currentMFASessionToken = '';
+
+    document.getElementById('userLoginForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const errorMessage = document.getElementById('errorMessage');
+
+        // Clear previous errors
+        errorMessage.style.display = 'none';
+
+        try {
+            const response = await fetch('/user/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    email: email,
+                    password: password
+                })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                if (data.mfa_required) {
+                    // Show MFA modal
+                    currentMFASessionToken = data.session_token;
+                    showUserMFAModal(data.user_email);
+                } else {
+                    // Store user session info
+                    sessionStorage.setItem('user_logged_in', 'true');
+                    sessionStorage.setItem('user_id', data.user_id);
+                    sessionStorage.setItem('user_name', data.user_name);
+                    sessionStorage.setItem('user_type', 'user');
+                    sessionStorage.setItem('user_email', data.email);
+                    
+                    // ✅ Store customer email for orders page
+                    sessionStorage.setItem('customer_email', data.email);
+                    
+                    // Redirect to home page
+                    window.location.href = '/';
+                }
+            } else {
+                errorMessage.textContent = data.message || 'Login failed. Please check your email and password.';
+                errorMessage.style.display = 'block';
+            }
+        } catch (error) {
+            errorMessage.textContent = 'Network error. Please try again.';
+            errorMessage.style.display = 'block';
+        }
+    });
+
+    function showUserMFAModal(userEmail) {
+        // Create MFA modal
+        const modalHTML = `
+            <div id="mfaModal" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); display:flex; align-items:center; justify-content:center; z-index:1000;">
+                <div style="background:white; padding:30px; border-radius:12px; width:90%; max-width:400px; box-shadow:0 10px 25px rgba(0,0,0,0.2);">
+                    <h3 style="color:#4361ee; margin-bottom:15px; text-align:center;">
+                        <i class="fas fa-shield-alt"></i> Verification Required
+                    </h3>
+                    <p style="margin-bottom:20px; text-align:center; color:#666;">
+                        We sent a verification code to:<br>
+                        <strong>${userEmail}</strong>
+                    </p>
+                    
+                    <input type="text" id="mfaCode" placeholder="Enter 6-digit code" 
+                           maxlength="6" style="width:100%; padding:12px; border:2px solid #e9ecef; border-radius:6px; font-size:18px; text-align:center; letter-spacing:8px; margin-bottom:15px;"
+                           oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                    
+                    <button onclick="verifyUserMFA()" style="width:100%; padding:12px; background:#4361ee; color:white; border:none; border-radius:6px; font-size:14px; font-weight:600; cursor:pointer;">
+                        <i class="fas fa-check"></i> Verify & Login
+                    </button>
+                    
+                    <button onclick="closeUserMFAModal()" style="width:100%; padding:10px; background:#6c757d; color:white; border:none; border-radius:6px; font-size:13px; margin-top:10px; cursor:pointer;">
+                        <i class="fas fa-times"></i> Cancel
+                    </button>
+                    
+                    <p style="color:#888; font-size:12px; text-align:center; margin-top:15px;">
+                        <i class="fas fa-info-circle"></i> Check your email for the verification code
+                    </p>
+                </div>
+            </div>
+        `;
+        
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
+        document.getElementById('mfaCode').focus();
+    }
+    
+    function verifyUserMFA() {
+        const mfaCode = document.getElementById('mfaCode').value;
+        
+        if (mfaCode.length !== 6) {
+            alert('Please enter a 6-digit code');
+            return;
+        }
+        
+        fetch('/user/verify-mfa', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                session_token: currentMFASessionToken,
+                verification_code: mfaCode
+            })
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                // Store user session info
+                sessionStorage.setItem('user_logged_in', 'true');
+                sessionStorage.setItem('user_id', data.user_id);
+                sessionStorage.setItem('user_name', data.user_name);
+                sessionStorage.setItem('user_type', 'user');
+                sessionStorage.setItem('user_email', data.email);
+                
+                // ✅ Store customer email for orders page
+                sessionStorage.setItem('customer_email', data.email);
+                
+                closeUserMFAModal();
+                
+                // Redirect to home page
+                window.location.href = '/';
+            } else {
+                alert('Verification failed: ' + data.message);
+            }
+        })
+        .catch(error => {
+            alert('Network error: ' + error.message);
+        });
+    }
+    
+    function closeUserMFAModal() {
+        const modal = document.getElementById('mfaModal');
+        if (modal) {
+            modal.remove();
+        }
+        currentMFASessionToken = '';
+    }
+
+    function goBack() {
+        window.location.href = '/gateway';
+    }
+</script>
+    
+    <!-- Add this line to EVERY HTML page -->
+    <script src="{{ url_for('static', filename='js/navigation.js') }}"></script>
+</body>
+</html>

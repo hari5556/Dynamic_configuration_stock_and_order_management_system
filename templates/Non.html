@@ -1,0 +1,1327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Non Moving Products - Configuration Manager</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-light: #eef2ff;
+            --secondary: #7209b7;
+            --danger: #ef476f;
+            --warning: #ffd166;
+            --success: #06d6a0;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --light-gray: #f1f5f9;
+            --border: #e2e8f0;
+            --border-dark: #cbd5e1;
+            --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            --transition: all 0.2s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Inter", "Segoe UI", sans-serif;
+            background: #f8fafc;
+            color: var(--dark);
+            line-height: 1.5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Navigation */
+        .navbar {
+            background: white;
+            padding: 16px 24px;
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 20px;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-link {
+            padding: 10px 20px;
+            background: var(--primary);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
+        }
+
+        .nav-link:hover {
+            background: #3a56d4;
+            transform: translateY(-1px);
+        }
+
+        /* Header */
+        .page-header {
+            background: white;
+            padding: 20px 24px;
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .page-header h1 {
+            color: var(--primary);
+            font-size: 24px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .period-selector {
+            display: flex;
+            gap: 8px;
+            background: var(--light-gray);
+            padding: 6px;
+            border-radius: 8px;
+        }
+
+        .period-btn {
+            padding: 8px 16px;
+            border: none;
+            background: transparent;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .period-btn.active {
+            background: white;
+            color: var(--primary);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Section Card */
+        .section-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: var(--card-shadow);
+            overflow: hidden;
+            margin-bottom: 24px;
+        }
+
+        .section-header {
+            background: var(--primary);
+            color: white;
+            padding: 20px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .section-header h3 {
+            font-size: 18px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-header-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .display-controls {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .limit-selector {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: white;
+            font-size: 13px;
+        }
+
+        .limit-input {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 6px 10px;
+            border-radius: 6px;
+            width: 70px;
+            text-align: center;
+        }
+
+        .limit-input:focus {
+            outline: none;
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .limit-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 6px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .limit-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .show-all-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 6px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .search-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .search-input {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 8px 12px;
+            border-radius: 6px;
+            width: 180px;
+        }
+
+        .search-input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .clear-search {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 6px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: none;
+        }
+
+        .download-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 500;
+        }
+
+        .download-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .section-body {
+            padding: 24px;
+        }
+
+        /* FIXED TABLE WITH PROPER BORDERS */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        .data-table thead {
+            background: var(--light-gray);
+        }
+
+        .data-table th {
+            padding: 14px 16px;
+            text-align: left;
+            font-weight: 600;
+            color: var(--dark);
+            border-bottom: 2px solid var(--border-dark);
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+        }
+
+        /* Add vertical borders between headers */
+        .data-table th:not(:last-child) {
+            border-right: 1px solid var(--border);
+        }
+
+        .data-table td {
+            padding: 16px;
+            border-bottom: 1px solid var(--border);
+            vertical-align: top;
+        }
+
+        /* Add vertical borders between data cells */
+        .data-table td:not(:last-child) {
+            border-right: 1px solid var(--border);
+        }
+
+        .data-table tbody tr {
+            transition: var(--transition);
+        }
+
+        .data-table tbody tr:hover {
+            background: var(--primary-light);
+        }
+
+        .data-table tbody tr:last-child td {
+            border-bottom: 1px solid var(--border-dark);
+        }
+
+        /* Table Cells with proper alignment */
+        .rank-cell {
+            text-align: center;
+            font-weight: 600;
+            color: var(--primary);
+            width: 60px;
+        }
+
+        .product-cell {
+            font-weight: 500;
+            min-width: 200px;
+            max-width: 300px;
+            word-wrap: break-word;
+        }
+
+        .product-cell strong {
+            color: var(--primary);
+            font-size: 14px;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .barcode-cell {
+            font-family: 'SF Mono', 'Monaco', 'Inconsolata', monospace;
+            font-size: 12px;
+            color: var(--gray);
+            min-width: 120px;
+        }
+
+        .barcode-code {
+            background: var(--light-gray);
+            padding: 4px 8px;
+            border-radius: 4px;
+            border: 1px solid var(--border);
+            display: inline-block;
+        }
+
+        .numeric-cell {
+            text-align: right;
+            font-family: 'SF Mono', 'Monaco', 'Inconsolata', monospace;
+            font-weight: 500;
+            min-width: 120px;
+        }
+
+        .stock-cell {
+            color: var(--danger);
+            font-weight: 600;
+        }
+
+        /* Status Badge */
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            background: rgba(239, 71, 111, 0.1);
+            color: var(--danger);
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            border: 1px solid rgba(239, 71, 111, 0.2);
+        }
+
+        /* Summary Bar */
+        .summary-bar {
+            background: var(--light-gray);
+            padding: 16px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            flex-wrap: wrap;
+            border: 1px solid var(--border);
+        }
+
+        .summary-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .summary-label {
+            font-size: 13px;
+            color: var(--gray);
+        }
+
+        .summary-value {
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .summary-badge {
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .badge-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .badge-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .badge-warning {
+            background: var(--warning);
+            color: var(--dark);
+        }
+
+        /* Show More Button */
+        .show-more-btn {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background: white;
+            border: 2px dashed var(--border);
+            border-radius: 8px;
+            color: var(--primary);
+            font-weight: 500;
+            cursor: pointer;
+            margin-top: 16px;
+            transition: var(--transition);
+        }
+
+        .show-more-btn:hover {
+            background: var(--primary-light);
+            border-color: var(--primary);
+        }
+
+        /* Loading & Empty States */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--gray);
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 40px;
+            color: var(--gray);
+        }
+
+        /* Column Selector Modal Styles */
+        .column-selector-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .column-selector-modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-header {
+            background: var(--primary);
+            color: white;
+            padding: 20px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 12px 12px 0 0;
+        }
+
+        .modal-header h3 {
+            font-size: 18px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 28px;
+            cursor: pointer;
+            line-height: 1;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: var(--transition);
+        }
+
+        .modal-close:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .modal-body {
+            padding: 24px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .column-checkbox-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .column-checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            border-radius: 8px;
+            transition: var(--transition);
+        }
+
+        .column-checkbox-item:hover {
+            background: var(--light-gray);
+        }
+
+        .column-checkbox-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: var(--primary);
+        }
+
+        .column-checkbox-item label {
+            cursor: pointer;
+            font-weight: 500;
+            flex: 1;
+            color: var(--dark);
+        }
+
+        .column-checkbox-item .required-badge {
+            background: var(--primary-light);
+            color: var(--primary);
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+
+        .modal-footer {
+            padding: 16px 24px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+
+        .btn-primary, .btn-secondary {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            transition: var(--transition);
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #3a56d4;
+        }
+
+        .btn-secondary {
+            background: var(--light-gray);
+            color: var(--dark);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--border);
+        }
+
+        /* Make download button smaller to fit */
+        #columnSelectorBtn {
+            margin-right: 8px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .section-header {
+                flex-direction: column;
+                gap: 12px;
+                align-items: flex-start;
+            }
+            
+            .display-controls {
+                width: 100%;
+            }
+            
+            .search-input {
+                width: 100%;
+            }
+            
+            .data-table {
+                font-size: 13px;
+            }
+            
+            .data-table th,
+            .data-table td {
+                padding: 12px 8px;
+            }
+            
+            .summary-bar {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+            }
+            
+            /* Remove vertical borders on mobile for better spacing */
+            .data-table th:not(:last-child),
+            .data-table td:not(:last-child) {
+                border-right: none;
+            }
+            
+            .modal-content {
+                width: 95%;
+                margin: 10px;
+            }
+            
+            .modal-footer {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="navbar-brand">
+            <i class="fas fa-cogs"></i> Configuration Manager
+        </div>
+        <a href="/dashboard" class="nav-link">
+            <i class="fas fa-chart-line"></i> Dashboard
+        </a>
+    </nav>
+
+    <div class="container">
+        <!-- Header -->
+        <div class="page-header">
+            <h1><i class="fas fa-ban"></i> Non Moving Products</h1>
+            <div class="period-selector">
+                <button class="period-btn active" data-period="today">Today</button>
+                <button class="period-btn" data-period="week">Week</button>
+                <button class="period-btn" data-period="month">Month</button>
+            </div>
+        </div>
+
+        <!-- Main Section -->
+        <div class="section-card">
+            <div class="section-header">
+                <h3><i class="fas fa-boxes-stacked"></i> Non Moving Products Inventory</h3>
+                <div class="section-header-actions">
+                    <div class="display-controls">
+                        <div class="limit-selector">
+                            <span>Show:</span>
+                            <input type="number" class="limit-input" id="limitInput" placeholder="No." min="1" value="10">
+                            <button class="limit-btn" id="applyLimit">Go</button>
+                            <button class="show-all-btn" id="showAllBtn">All</button>
+                        </div>
+                        <div class="search-container">
+                            <input type="text" class="search-input" id="searchProducts" placeholder="Search..." />
+                            <button class="clear-search" id="clearSearch">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <button class="download-btn" id="columnSelectorBtn">
+                        <i class="fas fa-columns"></i> Columns
+                    </button>
+                    <button class="download-btn" onclick="downloadNonMovingProducts()">
+                        <i class="fas fa-download"></i> Export
+                    </button>
+                </div>
+            </div>
+            
+            <div class="section-body" id="nonMovingProducts">
+                <div class="loading">
+                    <i class="fas fa-spinner fa-spin"></i> Loading non moving products...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Column Selector Modal -->
+    <div class="column-selector-modal" id="columnSelectorModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-columns"></i> Select Columns</h3>
+                <button class="modal-close" id="closeColumnSelector">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="column-checkbox-list" id="columnCheckboxList">
+                    <!-- Checkboxes will be dynamically added here -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" id="selectAllColumns">Select All</button>
+                <button class="btn-secondary" id="deselectAllColumns">Deselect All</button>
+                <button class="btn-primary" id="applyColumnSelection">Apply</button>
+            </div>
+        </div>
+    </div>
+
+<script>
+    let currentPeriod = 'today';
+    let displayLimit = 10;
+    let currentNonMovingProducts = [];
+    let currentItemMasterColumns = [];
+    let searchTerm = '';
+    
+    // Column management
+    let availableColumns = [
+        { id: 'product', name: 'Product Name', required: true, visible: true },
+        { id: 'barcode', name: 'Barcode', required: false, visible: true },
+        { id: 'stock', name: 'Current Stock', required: false, visible: true },
+        { id: 'status', name: 'Status', required: false, visible: true }
+    ];
+    
+    const SESSION_KEY = 'nonMovingSession';
+    const BACKEND_KEY = 'backendStartupTime';
+    const COLUMNS_KEY = 'columnPreferences';
+
+    function saveSession() {
+        const data = { currentPeriod, displayLimit };
+        sessionStorage.setItem(SESSION_KEY, JSON.stringify(data));
+    }
+    
+    function loadSession() {
+        try {
+            const data = JSON.parse(sessionStorage.getItem(SESSION_KEY));
+            if (data) {
+                currentPeriod = data.currentPeriod || 'today';
+                displayLimit = data.displayLimit || 10;
+                
+                document.querySelectorAll('.period-btn').forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.period === currentPeriod);
+                });
+                
+                document.getElementById('limitInput').value = displayLimit;
+            }
+        } catch {}
+    }
+    
+    function loadColumnPreferences() {
+        try {
+            const saved = sessionStorage.getItem(COLUMNS_KEY);
+            if (saved) {
+                const preferences = JSON.parse(saved);
+                availableColumns.forEach(col => {
+                    if (preferences[col.id] !== undefined && !col.required) {
+                        col.visible = preferences[col.id];
+                    }
+                });
+            }
+        } catch (e) {
+            console.warn('Could not load column preferences');
+        }
+    }
+    
+    function saveColumnPreferences() {
+        const preferences = {};
+        availableColumns.forEach(col => {
+            preferences[col.id] = col.visible;
+        });
+        sessionStorage.setItem(COLUMNS_KEY, JSON.stringify(preferences));
+    }
+
+    async function checkBackendStatus() {
+        try {
+            const res = await fetch('/api/status');
+            const data = await res.json();
+            const backendTime = data.startupTime || Date.now();
+            const stored = sessionStorage.getItem(BACKEND_KEY);
+            if (!stored || backendTime > stored) {
+                sessionStorage.clear();
+                sessionStorage.setItem(BACKEND_KEY, backendTime);
+            }
+        } catch (err) {
+            console.warn('Could not check backend status:', err);
+        }
+    }
+
+    function formatNumber(n) { return Number(n).toLocaleString('en-IN'); }
+
+    function getProductName(p) {
+        if (currentItemMasterColumns && currentItemMasterColumns.length > 0) {
+            for (const col of currentItemMasterColumns) {
+                if (p[col] && p[col] !== 'NULL' && p[col] !== 'Unknown Product' && p[col].toString().trim() !== '') {
+                    return p[col];
+                }
+            }
+        }
+        return p.barcode || "Unknown Product";
+    }
+
+    // Check if we should group products
+    function shouldGroupProducts() {
+        const visibleColumns = availableColumns.filter(col => col.visible);
+        
+        // Group only if:
+        // 1. Product column is selected (always true since it's required)
+        // 2. No other columns are selected OR only Current Stock is selected with Product
+        const hasProduct = visibleColumns.some(col => col.id === 'product');
+        const hasOtherColumns = visibleColumns.some(col => 
+            col.id !== 'product' && col.id !== 'stock'
+        );
+        
+        return hasProduct && !hasOtherColumns;
+    }
+
+    // Group unique products and sum stock
+    function groupUniqueProducts(products) {
+        const grouped = {};
+        
+        products.forEach(product => {
+            const productName = getProductName(product);
+            
+            if (!grouped[productName]) {
+                grouped[productName] = {
+                    name: productName,
+                    totalStock: 0,
+                    count: 0
+                };
+            }
+            
+            grouped[productName].totalStock += parseInt(product.current_stock) || 0;
+            grouped[productName].count++;
+        });
+        
+        return Object.values(grouped);
+    }
+
+    function updateAvailableColumns() {
+        const baseColumns = [
+            { id: 'product', name: 'Product Name', required: true, visible: true },
+            { id: 'barcode', name: 'Barcode', required: false, visible: true },
+            { id: 'stock', name: 'Current Stock', required: true, visible: true },
+            { id: 'status', name: 'Status', required: false, visible: true }
+        ];
+        
+        availableColumns = [...baseColumns];
+        
+        if (currentItemMasterColumns && currentItemMasterColumns.length > 0) {
+            currentItemMasterColumns.forEach((col, index) => {
+                if (col !== 'Product' && !availableColumns.some(c => c.name === col)) {
+                    availableColumns.push({
+                        id: `itemmaster_${index}`,
+                        name: col,
+                        required: false,
+                        visible: false
+                    });
+                }
+            });
+        }
+        
+        loadColumnPreferences();
+    }
+
+    function renderColumnCheckboxes() {
+        const checkboxList = document.getElementById('columnCheckboxList');
+        checkboxList.innerHTML = '';
+
+        availableColumns.forEach(column => {
+            const checkboxItem = document.createElement('div');
+            checkboxItem.className = 'column-checkbox-item';
+            
+            const checkboxId = `col-${column.id}`;
+            const isRequired = column.required;
+            
+            checkboxItem.innerHTML = `
+                <input type="checkbox" 
+                       id="${checkboxId}" 
+                       ${isRequired ? 'disabled' : ''} 
+                       ${column.visible ? 'checked' : ''}
+                       ${isRequired ? 'checked' : ''}>
+                <label for="${checkboxId}">${column.name}</label>
+                ${isRequired ? '<span class="required-badge">Required</span>' : ''}
+            `;
+            
+            if (!isRequired) {
+                checkboxItem.querySelector('input').addEventListener('change', (e) => {
+                    column.visible = e.target.checked;
+                });
+            }
+            
+            checkboxList.appendChild(checkboxItem);
+        });
+    }
+
+    function initColumnSelector() {
+        const modal = document.getElementById('columnSelectorModal');
+        const openBtn = document.getElementById('columnSelectorBtn');
+        const closeBtn = document.getElementById('closeColumnSelector');
+        const applyBtn = document.getElementById('applyColumnSelection');
+        const selectAllBtn = document.getElementById('selectAllColumns');
+        const deselectAllBtn = document.getElementById('deselectAllColumns');
+
+        openBtn.addEventListener('click', () => {
+            renderColumnCheckboxes();
+            modal.classList.add('active');
+        });
+
+        closeBtn.addEventListener('click', () => {
+            modal.classList.remove('active');
+        });
+
+        applyBtn.addEventListener('click', () => {
+            saveColumnPreferences();
+            modal.classList.remove('active');
+            displayProducts();
+        });
+
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.classList.remove('active');
+            }
+        });
+
+        selectAllBtn.addEventListener('click', () => {
+            availableColumns.forEach(col => {
+                if (!col.required) {
+                    col.visible = true;
+                }
+            });
+            renderColumnCheckboxes();
+        });
+
+        deselectAllBtn.addEventListener('click', () => {
+            availableColumns.forEach(col => {
+                if (!col.required) {
+                    col.visible = false;
+                }
+            });
+            renderColumnCheckboxes();
+        });
+    }
+
+    function filterProducts() {
+        const searchInput = document.getElementById('searchProducts');
+        const clearBtn = document.getElementById('clearSearch');
+        searchTerm = searchInput.value.trim().toLowerCase();
+        
+        clearBtn.style.display = searchTerm ? 'block' : 'none';
+        displayProducts();
+    }
+
+    function clearSearch() {
+        document.getElementById('searchProducts').value = '';
+        searchTerm = '';
+        document.getElementById('clearSearch').style.display = 'none';
+        displayProducts();
+    }
+
+    function applyLimit() {
+        const limitInput = document.getElementById('limitInput');
+        const value = parseInt(limitInput.value);
+        
+        if (isNaN(value) || value < 1) {
+            alert('Please enter a valid number greater than 0');
+            limitInput.value = displayLimit;
+            return;
+        }
+        
+        displayLimit = value;
+        saveSession();
+        displayProducts();
+    }
+
+    function showAllProducts() {
+        displayLimit = currentNonMovingProducts.length;
+        document.getElementById('limitInput').value = displayLimit;
+        saveSession();
+        displayProducts();
+    }
+
+    function displayProducts() {
+        const container = document.getElementById('nonMovingProducts');
+        
+        if (currentNonMovingProducts.length === 0) {
+            container.innerHTML = `<div class="no-data">No non moving products available</div>`;
+            return;
+        }
+        
+        let filteredProducts = currentNonMovingProducts;
+        if (searchTerm) {
+            filteredProducts = currentNonMovingProducts.filter(product => {
+                if (product.barcode && product.barcode.toLowerCase().includes(searchTerm)) return true;
+                
+                const productName = getProductName(product);
+                if (productName.toLowerCase().includes(searchTerm)) return true;
+                
+                if (currentItemMasterColumns && currentItemMasterColumns.length > 0) {
+                    for (const col of currentItemMasterColumns) {
+                        if (product[col] && product[col].toString().toLowerCase().includes(searchTerm)) {
+                            return true;
+                        }
+                    }
+                }
+                
+                return false;
+            });
+        }
+        
+        const totalProducts = currentNonMovingProducts.length;
+        const filteredCount = filteredProducts.length;
+        
+        // Check if we should group products
+        const shouldGroup = shouldGroupProducts();
+        let dataToDisplay = [];
+        
+        if (shouldGroup) {
+            // Group unique products
+            dataToDisplay = groupUniqueProducts(filteredProducts);
+        } else {
+            // Show all individual products
+            dataToDisplay = filteredProducts;
+        }
+        
+        let displayedData = dataToDisplay;
+        const displayedCount = dataToDisplay.length;
+        
+        if (displayLimit > 0 && displayedCount > displayLimit) {
+            displayedData = dataToDisplay.slice(0, displayLimit);
+        }
+        
+        const isLimited = displayLimit > 0 && displayedCount > displayLimit;
+        
+        let totalStock = 0;
+        if (shouldGroup) {
+            dataToDisplay.forEach(group => {
+                totalStock += group.totalStock;
+            });
+        } else {
+            filteredProducts.forEach(p => {
+                totalStock += parseInt(p.current_stock) || 0;
+            });
+        }
+        
+        // Build summary
+        let html = `
+            <div class="summary-bar">
+                <div class="summary-item">
+                    <span class="summary-label">Total:</span>
+                    <span class="summary-value">${totalProducts}</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">Period:</span>
+                    <span class="summary-value">${currentPeriod.toUpperCase()}</span>
+                    <span class="summary-badge badge-primary">${displayLimit}</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-label">Total Stock:</span>
+                    <span class="summary-value">${formatNumber(totalStock)}</span>
+                    <span class="summary-badge badge-danger">units</span>
+                </div>`;
+        
+        if (searchTerm) {
+            html += `<div class="summary-item">
+                        <span class="summary-label">Found:</span>
+                        <span class="summary-value">${filteredCount}</span>
+                        <span class="summary-badge badge-warning">"${searchTerm}"</span>
+                    </div>`;
+        }
+        
+        if (isLimited) {
+            html += `<div class="summary-item">
+                        <span class="summary-label">Showing:</span>
+                        <span class="summary-value">${displayedData.length}/${displayedCount}</span>
+                    </div>`;
+        }
+        
+        html += `</div>`;
+        
+        // Build table headers
+        let tableHeaders = '';
+        availableColumns.forEach(col => {
+            if (col.visible) {
+                tableHeaders += `<th>${col.name}</th>`;
+            }
+        });
+        
+        // Build table rows
+        let tableRows = '';
+        if (displayedData.length === 0) {
+            const colSpan = availableColumns.filter(col => col.visible).length;
+            tableRows = `<tr><td colspan="${colSpan}" class="no-data">No products found</td></tr>`;
+        } else {
+            if (shouldGroup) {
+                // Display grouped products
+                displayedData.forEach((group, i) => {
+                    let rowCells = '';
+                    
+                    availableColumns.forEach(col => {
+                        if (!col.visible) return;
+                        
+                        if (col.id === 'product') {
+                            rowCells += `<td class="product-cell">${group.name}</td>`;
+                        } else if (col.id === 'stock') {
+                            rowCells += `
+                                <td class="numeric-cell stock-cell">${formatNumber(group.totalStock)}</td>`;
+                        } else if (col.id === 'status') {
+                            rowCells += `<td><span class="status-badge">No Recent Sales</span></td>`;
+                        } else if (col.id === 'barcode') {
+                            rowCells += `<td class="barcode-cell">-</td>`;
+                        } else if (col.id.startsWith('itemmaster_')) {
+                            rowCells += `<td>-</td>`;
+                        }
+                    });
+                    
+                    tableRows += `
+                        <tr>
+                            <td class="rank-cell">${i + 1}</td>
+                            ${rowCells}
+                        </tr>`;
+                });
+            } else {
+                // Display individual products
+                displayedData.forEach((p, i) => {
+                    const productName = getProductName(p);
+                    
+                    let rowCells = '';
+                    
+                    availableColumns.forEach(col => {
+                        if (!col.visible) return;
+                        
+                        if (col.id === 'product') {
+                            rowCells += `<td class="product-cell">${productName}</td>`;
+                        } else if (col.id === 'barcode') {
+                            rowCells += `
+                                <td class="barcode-cell">
+                                    <span class="barcode-code">${p.barcode || '-'}</span>
+                                </td>`;
+                        } else if (col.id === 'stock') {
+                            rowCells += `
+                                <td class="numeric-cell stock-cell">${formatNumber(p.current_stock)}</td>`;
+                        } else if (col.id === 'status') {
+                            rowCells += `<td><span class="status-badge">No Recent Sales</span></td>`;
+                        } else if (col.id.startsWith('itemmaster_')) {
+                            const colIndex = parseInt(col.id.split('_')[1]);
+                            const colName = currentItemMasterColumns[colIndex];
+                            if (colName && p[colName]) {
+                                rowCells += `<td>${p[colName]}</td>`;
+                            } else {
+                                rowCells += `<td>-</td>`;
+                            }
+                        }
+                    });
+                    
+                    tableRows += `
+                        <tr>
+                            <td class="rank-cell">${i + 1}</td>
+                            ${rowCells}
+                        </tr>`;
+                });
+            }
+        }
+        
+        let finalTableHeaders = `<th>#</th>${tableHeaders}`;
+        
+        html += `
+            <table class="data-table">
+                <thead>
+                    <tr>${finalTableHeaders}</tr>
+                </thead>
+                <tbody>${tableRows}</tbody>
+            </table>`;
+        
+        if (isLimited) {
+            const remaining = displayedCount - displayedData.length;
+            html += `
+                <button class="show-more-btn" onclick="increaseLimit()">
+                    <i class="fas fa-plus"></i> Show ${remaining} More ${shouldGroup ? 'Products' : 'Rows'}
+                </button>`;
+        }
+        
+        container.innerHTML = html;
+    }
+
+    function increaseLimit() {
+        displayLimit += 50;
+        document.getElementById('limitInput').value = displayLimit;
+        saveSession();
+        displayProducts();
+    }
+
+    async function loadNonMovingProducts() {
+        searchTerm = '';
+        document.getElementById('searchProducts').value = '';
+        document.getElementById('clearSearch').style.display = 'none';
+        
+        const container = document.getElementById('nonMovingProducts');
+        container.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin"></i> Loading...</div>';
+        
+        try {
+            const res = await fetch(`/api/dashboard/non-moving-products?period=${currentPeriod}`);
+            const data = await res.json();
+            
+            if (!data.success) { 
+                container.innerHTML = `<div class="no-data">${data.message}</div>`; 
+                return; 
+            }
+
+            currentNonMovingProducts = data.non_moving_products;
+            currentItemMasterColumns = data.itemmaster_columns || [];
+            
+            updateAvailableColumns();
+            displayProducts();
+            saveSession();
+        } catch (err) {
+            container.innerHTML = `<div class="no-data">Error loading data</div>`;
+        }
+    }
+
+    function downloadNonMovingProducts() {
+        let productsToDownload = currentNonMovingProducts;
+        
+        if (searchTerm) {
+            productsToDownload = currentNonMovingProducts.filter(product => {
+                if (product.barcode && product.barcode.toLowerCase().includes(searchTerm)) return true;
+                
+                const productName = getProductName(product);
+                if (productName.toLowerCase().includes(searchTerm)) return true;
+                
+                if (currentItemMasterColumns && currentItemMasterColumns.length > 0) {
+                    for (const col of currentItemMasterColumns) {
+                        if (product[col] && product[col].toString().toLowerCase().includes(searchTerm)) {
+                            return true;
+                        }
+                    }
+                }
+                
+                return false;
+            });
+        }
+        
+        if (productsToDownload.length === 0) {
+            alert('No data to download');
+            return;
+        }
+        
+        const productsWithName = productsToDownload.map(p => ({
+            ...p,
+            Product_Name: getProductName(p)
+        }));
+        
+        const worksheet = XLSX.utils.json_to_sheet(productsWithName);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'Non Moving Products');
+        XLSX.writeFile(workbook, `non-moving-products-${currentPeriod}.xlsx`);
+    }
+
+    // Event Listeners
+    document.querySelectorAll('.period-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            currentPeriod = btn.dataset.period;
+            saveSession();
+            loadNonMovingProducts();
+        });
+    });
+
+    document.getElementById('applyLimit').addEventListener('click', applyLimit);
+    document.getElementById('showAllBtn').addEventListener('click', showAllProducts);
+    
+    document.getElementById('limitInput').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') applyLimit();
+    });
+
+    document.getElementById('searchProducts').addEventListener('input', filterProducts);
+    document.getElementById('clearSearch').addEventListener('click', clearSearch);
+
+    document.addEventListener('DOMContentLoaded', async () => {
+        await checkBackendStatus();
+        loadSession();
+        loadColumnPreferences();
+        initColumnSelector();
+        loadNonMovingProducts();
+    });
+</script>
+
+<script src="{{ url_for('static', filename='js/navigation.js') }}"></script>
+</body>
+</html>
